@@ -1,0 +1,136 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+@import '../../../../vendor/pxlrbt/filament-activity-log/resources/css/styles.css';
+
+
+html.fi {
+    .fi-topbar {
+        @apply shadow-md dark:shadow-xl bg-[#005E69];
+        [aria-label="Notifications"] {
+            .fi-icon {
+                path {
+                    @apply fill-white;
+                }
+            }
+        }
+    }
+
+    .fi-simple-layout {
+        @apply bg-[#E6F7F9];
+    }
+
+    .fi-simple-main {
+        @apply bg-[##00444C];
+    }
+
+    .fi-fo-builder-item-header, .fi-modal-window, .fi-sc-tabs.fi-contained, .fi-ta-ctn.fi-ta-ctn-with-header, .fi-fieldset, .fi-section, .fi-section-content {
+        @apply rounded-md shadow-[0_8px_8px_0_rgba(100,100,100,0.05),0_15px_35px_0_rgba(80,80,80,0.05),0_0_0_1px_rgba(85,87,89,0.1)] dark:shadow-[0_20px_35px_0_rgba(22,22,22,0.25),0_10px_23px_0_rgba(23,23,23,0.35),0_0_0_1px_rgba(85,87,89,0.3)];
+    }
+
+    .fi-input-wrp-content-ctn, .filepond--drop-label {
+        @apply border-0 rounded-md dark:bg-[rgba(0,0,0,0.55)] dark:shadow-[inset_0_0_4px_1px_rgba(23,23,23,0.3)];
+
+        .fi-input-wrp {
+            @apply border-0 shadow-none;
+        }
+    }
+}
+
+.fi-sidebar {
+    @apply lg:bg-[#E6F7F9]/20 lg:dark:bg-gray-800/75 inset-shadow-sm;
+
+    .fi-sidebar-nav-groups {
+        @apply gap-y-2;
+
+        .fi-sidebar-group-btn {
+            @apply pb-4;
+        }
+
+        .fi-sidebar-group-items {
+            @apply pb-2;
+        }
+    }
+}
+
+.fi-section, .fi-fieldset, .fi-tabs, .fi-fo-builder-item, .fi-btn {
+    @apply shadow-md shadow-gray-200 dark:shadow-black/50;
+}
+
+.fi-btn {
+    @apply uppercase font-extrabold rounded-[.25rem]  h-[2.375rem] tracking-[-.01em] pt-[.475rem] px-[1.25rem]  shadow-[0_20px_35px_0_rgba(22,22,22,0.45),0_10px_23px_0_rgba(23,23,23,0.65),0_0_0_1px_rgba(85,87,89,0.8)];
+}
+
+.fi-input-wrp, .fi-fo-text-input, .fi-fo-textarea, .fi-fo-rich-editor, .fi-fo-file-upload, .fi-fo-file-upload-input-ctn, .filepond--root, .fi-fo-select, .fi-dropdown-panel, .fi-dropdown-list-item {
+    @apply rounded-[.25rem] inset-shadow-sm;
+}
+
+.fi-toggle,
+.fi-fo-toggle {
+    > div:first-child {
+        @apply dark:bg-black! ;
+    }
+}
+
+.fi-no-notification, .fi-modal-window {
+    @apply rounded-[.25rem] shadow-md dark:shadow-black/50;
+
+    &.fi-status-info {
+        @apply bg-cyan-300 dark:bg-cyan-600;
+    }
+
+    &.fi-status-success {
+        @apply bg-lime-300 dark:bg-lime-600;
+    }
+
+    &.fi-status-warning {
+        @apply bg-yellow-300 dark:bg-yellow-600;
+    }
+
+    &.fi-status-danger,
+    &.fi-status-error {
+        @apply bg-rose-300 dark:bg-rose-600;
+    }
+
+    .fi-no-notification-body {
+        @apply text-[gray] dark:text-white;
+    }
+
+    .fi-icon {
+        @apply dark:fill-white;
+    }
+}
+
+.fi-ta-header-toolbar {
+    @apply rounded-[.25rem] inset-shadow-sm;
+}
+
+input[type="search"] {
+    @apply pl-3
+}
+
+.fi-input-wrp-prefix {
+    @apply relative;
+
+    &:before {
+        @apply content-[""] block absolute top-0 left-0 w-full h-full z-0 rounded-tl-md rounded-bl-md bg-gradient-to-b  dark:from-neutral-900 dark:to-neutral-800;
+    }
+
+    svg, span {
+        @apply z-10;
+    }
+}
+
+.fi-ac-btn-action {
+    @apply bg-[#1495ab] text-white;
+
+    svg path {
+        @apply stroke-white;
+    }
+}
+
+.fi-sidebar-group {
+    @apply border-b border-gray-300;
+}

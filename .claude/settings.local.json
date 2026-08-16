@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan *)",
+      "Bash(DB_CONNECTION=mysql DB_DATABASE=ltkl__cms DB_HOST=127.0.0.1 DB_USERNAME=root DB_PASSWORD=root php artisan test --filter=WebsiteMetaSmoke)",
+      "Bash(DB_CONNECTION=mysql DB_DATABASE=ltkl__cms DB_HOST=127.0.0.1 DB_USERNAME=root DB_PASSWORD=root php artisan test --filter=PostTypeSmoke)",
+      "Bash(perl -pi -e \"s|->assertFormSet\\\\\\(\\\\['type' => PostType::ARTICLE->value\\\\]\\\\\\)|->assertFormSet\\(['type' => PostType::ARTICLE]\\)|; s|->assertJsonPath\\\\\\('total', Post::where\\\\\\('is_active', true\\\\\\)->count\\\\\\(\\\\\\)\\\\\\);|->assertJsonPath\\('meta.total', Post::where\\('is_active', true\\)->count\\(\\)\\);|\" tests/Feature/PostTypeSmokeTest.php)",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "mcp__claude_ai_Figma__get_metadata",
+      "Bash(grep -rn 'getTabs\\('\\\\''en'\\\\''\\)\\\\|getTabs\\($module, '\\\\''en'\\\\''\\)\\\\|'\\\\''en'\\\\'',' app/Filament/)",
+      "Bash(composer require *)",
+      "Bash(composer audit *)",
+      "Bash(php -l app/Filament/Resources/Kabupatens/Schemas/KabupatenForm.php)",
+      "Bash(php -l app/Services/LocationSearch.php)",
+      "Bash(awk NR>=224 && NR<=256 *)",
+      "Bash(awk 'NR>=340 && NR<=382' app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(awk NR>=350 && NR<=402 *)",
+      "Bash(awk 'NR>=487 && NR<=530' app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(awk 'NR>=146 && NR<=200' app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(awk 'NR>=225 && NR<=248' app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(awk 'NR>=114 && NR<=152' app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(perl -ni -e 'print unless /^use App\\\\\\\\Enums\\\\\\\\CollectionType;$/' tests/Feature/CollectionComponentTest.php)",
+      "Bash(php -l tests/Feature/CollectionComponentTest.php)"
+    ]
+  }
+}

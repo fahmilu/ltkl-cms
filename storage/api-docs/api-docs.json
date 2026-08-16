@@ -1,0 +1,246 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Documentation",
+        "description": "API documentation for Api management",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "https://ykan-be.staging.catalyze.id",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api": {},
+        "/api/collections": {
+            "get": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Get all collections | to see the `type` please execute all the collections first",
+                "operationId": "getCollectionsList",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter type",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collection listed"
+                    }
+                }
+            }
+        },
+        "/api/collection/{slug}": {
+            "get": {
+                "tags": [
+                    "Collections"
+                ],
+                "summary": "Get collection in slug",
+                "operationId": "getCollectionSlug",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collection data shown"
+                    }
+                }
+            }
+        },
+        "/api/pages": {
+            "get": {
+                "tags": [
+                    "Pages"
+                ],
+                "summary": "Get all pages",
+                "operationId": "getPagesList",
+                "parameters": [
+                    {
+                        "name": "default",
+                        "in": "query",
+                        "description": "Filter default page",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Filter publish/draft page",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Page listed"
+                    }
+                }
+            }
+        },
+        "/api/page/{slug}": {
+            "get": {
+                "tags": [
+                    "Pages"
+                ],
+                "summary": "Get page in slug",
+                "operationId": "getPageSlug",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Page data shown"
+                    }
+                }
+            }
+        },
+        "/api/posts": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get all posts",
+                "operationId": "getPostsList",
+                "parameters": [
+                    {
+                        "name": "featured",
+                        "in": "query",
+                        "description": "Filter featured post",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Filter publish/draft post",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search post by title",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post listed"
+                    }
+                }
+            }
+        },
+        "/api/post/{slug}": {
+            "get": {
+                "tags": [
+                    "Posts"
+                ],
+                "summary": "Get post in slug",
+                "operationId": "getPostSlug",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "description": "Slug",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Post data shown"
+                    }
+                }
+            }
+        },
+        "/api/settings": {
+            "get": {
+                "tags": [
+                    "Settings"
+                ],
+                "summary": "Get all settings | to see the `group` and `key` please execute all the settings first",
+                "operationId": "getSettingsList",
+                "parameters": [
+                    {
+                        "name": "group",
+                        "in": "query",
+                        "description": "Filter group",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "key",
+                        "in": "query",
+                        "description": "Filter key",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Collection listed"
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Collections",
+            "description": "Collections"
+        },
+        {
+            "name": "Pages",
+            "description": "Pages"
+        },
+        {
+            "name": "Posts",
+            "description": "Posts"
+        },
+        {
+            "name": "Settings",
+            "description": "Settings"
+        }
+    ]
+}

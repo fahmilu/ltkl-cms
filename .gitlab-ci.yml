@@ -1,0 +1,74 @@
+variables:
+  PHP_VERSION: php-fpm-8.4
+  PROJECT_NAME: ykan-be
+
+stages:
+  - deploy
+  - install_dependencies
+  - install_node_package
+  - build_frontend
+  - post_deploy
+
+deploy_to_staging:
+  stage: deploy
+  environment:
+    name: staging
+    url: https://$PROJECT_NAME.staging.catalyze.id/
+  script:
+    - mkdir -p /projects/$PROJECT_NAME
+    - git --work-tree=/projects/$PROJECT_NAME checkout -f
+    - cat $ENV_STAGING > /projects/$PROJECT_NAME/.env
+  only:
+    - staging
+  tags:
+    - staging-runner
+
+update_composer_package_staging:
+  stage: install_dependencies
+  script:
+    - docker exec $PHP_VERSION rm -f /projects/$PROJECT_NAME/bootstrap/cache/config.php
+    - docker exec $PHP_VERSION rm -f /projects/$PROJECT_NAME/config/l5-swagger.php
+    - docker exec $PHP_VERSION composer install --working-dir /projects/$PROJECT_NAME
+  only:
+    refs:
+      - staging
+    changes:
+      - composer.lock
+      - composer.json
+  tags:
+    - staging-runner
+
+update_node_package_staging:
+  stage: install_dependencies
+  script:
+    - docker exec $PHP_VERSION npm --prefix /projects/$PROJECT_NAME ci --legacy-peer-deps
+  only:
+    refs:
+      - staging
+    changes:
+      - package-lock.json
+      - package.json
+  tags:
+    - staging-runner
+
+compile_frontend_assets_staging:
+  stage: build_frontend
+  script:
+    - docker exec $PHP_VERSION npm --prefix /projects/$PROJECT_NAME run build
+  only:
+    refs:
+      - staging
+  tags:
+    - staging-runner
+
+laravel_chores_staging:
+  stage: post_deploy
+  script:
+    - docker exec $PHP_VERSION php /projects/$PROJECT_NAME/artisan migrate
+    - docker exec $PHP_VERSION php /projects/$PROJECT_NAME/artisan storage:link
+    - docker exec $PHP_VERSION php /projects/$PROJECT_NAME/artisan optimize:clear
+  only:
+    refs:
+      - staging
+  tags:
+    - staging-runner

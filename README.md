@@ -128,11 +128,33 @@ OpenAPI annotations live on the controllers. **No generator is installed** — t
 ## Seeders
 
 ```bash
-php artisan db:seed --class=PostSeeder      # 15 posts, 3 per PostType
+php artisan db:seed --class=ContentSeeder   # restore the full content snapshot
+php artisan db:seed --class=PostSeeder      # 15 dummy posts, 3 per PostType
 php artisan db:seed --class=PillarSeeder    # 3 pillars, idempotent on slug
 ```
 
-`PillarSeeder` uses `updateOrCreate`, so re-running updates in place. It also attaches practices and kabupatens when those records exist, and no-ops on the relations when they don't.
+**`ContentSeeder`** replays a snapshot of the real site content — pages, posts,
+collections, kabupatens, pillars with their practices, participation pathways,
+master links and settings, plus every pivot between them. It reads
+`database/seeders/data/content.json`, so bringing a fresh database up to date is:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=ContentSeeder
+```
+
+Rows are matched on their natural key (slug, or group + key for settings) rather
+than id, so ids may differ between environments and re-running updates in place
+instead of duplicating. Relations are stored as slugs in the snapshot and
+re-resolved at seed time.
+
+To refresh the snapshot after content changes, re-export it from a working
+database; the file is plain JSON and is meant to be committed.
+
+`PostSeeder` and `PillarSeeder` generate sample data and are independent of the
+snapshot. `PillarSeeder` uses `updateOrCreate`, attaching practices and
+kabupatens when those records exist and no-opping on the relations when they
+don't.
 
 ## Deployment notes
 

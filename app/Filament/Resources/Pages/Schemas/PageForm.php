@@ -273,12 +273,9 @@ class PageForm
                                 TextInput::make('label')
                                     ->label('Label')
                                     ->placeholder('Input label...')
-                                    ->columnSpan(1),
-                                TextInput::make('title')
-                                    ->label('Title')
-                                    ->placeholder('Input title...')
-                                    ->required()
-                                    ->columnSpan(1),
+                                    ->columnSpanFull(),
+                                FormHelper::makeRichEditor('title', 'Title')
+                                    ->required(),
                                 FormHelper::makeRichEditor('description', 'Description'),
                                 Repeater::make('items')
                                     ->label('Items')

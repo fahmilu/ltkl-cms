@@ -152,7 +152,7 @@ class WebsiteSettings extends AbstractPageSettings
                                             ]),
                                         FileUpload::make('favicon')
                                         ->label('Favicon')
-                                        ->placeholder('Input favicon...')
+                                        // ->placeholder('Input favicon...')
                                         ->helperText('Ideal max size are ' . config('filehelper.favicon.max-size') . ' and dimensions are ' . config('filehelper.favicon.dimensions') . ' pixels.')
                                         ->image()->directory('favicon')->disk('public')->visibility('public')->columnSpan([
                                             'sm' => 1,
@@ -160,7 +160,7 @@ class WebsiteSettings extends AbstractPageSettings
                                         ]),
                                         FileUpload::make('main_logo')
                                             ->label('Main logo')
-                                            ->placeholder('Input main logo...')
+                                            // ->placeholder('Input main logo...')
                                             ->helperText('SVG, PNG or WEBP. Ideal max size are ' . config('filehelper.main-logo.max-size') . ' and dimensions are ' . config('filehelper.main-logo.dimensions') . ' pixels.')
                                             ->image()
                                             ->acceptedFileTypes(config('filesystems.image_mimes'))
@@ -249,7 +249,7 @@ class WebsiteSettings extends AbstractPageSettings
                                             ]),
                                         FileUpload::make('meta_image')
                                             ->label('Global meta image')
-                                            ->placeholder('Input meta image...')
+                                            // ->placeholder('Input meta image...')
                                             ->openable()
                                             ->image()
                                             ->maxSize(5240000)->disk('public')->visibility('public')

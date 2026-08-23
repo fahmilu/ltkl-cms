@@ -56,7 +56,7 @@ class PillarForm
 
                             FileUpload::make('image')
                                 ->label('Image')
-                                ->placeholder('Input image...')
+                                // ->placeholder('Input image...')
                                 ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
                                 ->openable()
                                 ->image()
@@ -305,7 +305,7 @@ class PillarForm
 
                         FileUpload::make('image')
                             ->label('Image')
-                            ->placeholder('Input image...')
+                            // ->placeholder('Input image...')
                             ->openable()
                             ->image()
                             ->maxSize(5240000)->disk('public')

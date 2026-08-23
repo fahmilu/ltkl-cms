@@ -102,7 +102,7 @@ class PageForm
                         // Seo Settings
                         Section::make('SEO Settings')
                             ->schema([
-                                FileUpload::make('meta_image')->label('Meta image')->placeholder('Input meta image...')->image()->removeUploadedFileButtonPosition('bottom')->directory('pages')->disk('public')->visibility('public')->columnSpanFull(),
+                                FileUpload::make('meta_image')->label('Meta image')->image()->removeUploadedFileButtonPosition('bottom')->directory('pages')->disk('public')->visibility('public')->columnSpanFull(),
                             ])->columns(1)->columnSpanFull(),
                     ])
                     // ->columns(1)
@@ -158,7 +158,7 @@ class PageForm
                             ->schema([
                                 FileUpload::make('banner_image')
                                     ->label('Banner Image')
-                                    ->placeholder('Input banner image...')
+                                    // ->placeholder('Input banner image...')
                                     ->removeUploadedFileButtonPosition('bottom')
                                     ->image()
                                     ->directory('pages')
@@ -170,15 +170,9 @@ class PageForm
                                     ->label('Banner Label')
                                     ->placeholder('Input banner label...')
                                     ->columnSpanFull(),
-                                TextInput::make('banner_title')
-                                    ->label('Banner Title')
-                                    ->placeholder('Input banner title...')
-                                    ->required()
-                                    ->columnSpanFull(),
-                                TextInput::make('banner_description')
-                                    ->label('Banner Description')
-                                    ->placeholder('Input banner description...')
-                                    ->columnSpanFull(),
+                                FormHelper::makeRichEditor('banner_title', 'Banner Title')
+                                    ->required(),
+                                FormHelper::makeRichEditor('banner_description', 'Banner Description'),
                                 TextInput::make('banner_button_1_text')
                                     ->label('Banner Button #1 Text')
                                     ->placeholder('Input banner button #1 text...')
@@ -296,7 +290,7 @@ class PageForm
                                         TextInput::make('title')
                                             ->label('Title')
                                             ->placeholder('Input title...')
-                                            ->columnSpan(1),
+                                            ->columnSpanFull(),
                                         TextInput::make('value')
                                             ->label('Value')
                                             ->placeholder('Input value...')
@@ -305,7 +299,7 @@ class PageForm
                                             ->label('Unit')
                                             ->placeholder('ha, km², %...')
                                             ->columnSpan(1),
-                                    ])->columns(3)
+                                    ])->columns(2)
                                     ->columnSpanFull(),
                                 TextInput::make('button_1_text')
                                     ->label('Button #1 Text')
@@ -448,7 +442,7 @@ class PageForm
                                     ->columnSpanFull(),
                                 FileUpload::make('image')
                                     ->label('Image')
-                                    ->placeholder('Input image...')
+                                    // ->placeholder('Input image...')
                                     ->helperText('Ideal max size are ' . config('filehelper.side-image.max-size') . ' and dimensions are ' . config('filehelper.side-image.dimensions') . ' pixels.')
                                     ->image()
                                     ->removeUploadedFileButtonPosition('bottom')
@@ -504,7 +498,7 @@ class PageForm
                                 ...FormHelper::submenuFields(null),
                                 FileUpload::make('image')
                                     ->label('Image')
-                                    ->placeholder('Input image...')
+                                    // ->placeholder('Input image...')
                                     ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
                                     ->image()
                                     ->removeUploadedFileButtonPosition('bottom')
@@ -534,7 +528,7 @@ class PageForm
                                         TextInput::make('title')
                                             ->label('Title')
                                             ->placeholder('Input title...')
-                                            ->columnSpan(1),
+                                            ->columnSpanFull(),
                                         TextInput::make('value')
                                             ->label('Value')
                                             ->placeholder('Input value...')
@@ -543,7 +537,7 @@ class PageForm
                                             ->label('Unit')
                                             ->placeholder('ha, km², %...')
                                             ->columnSpan(1),
-                                    ])->columns(3)
+                                    ])->columns(2)
                                     ->columnSpanFull(),
                                 TextInput::make('button_text')
                                     ->label('Button Text')
@@ -673,7 +667,7 @@ class PageForm
                         ...($withItemImage ? [
                             FileUpload::make('image')
                                 ->label('Image')
-                                ->placeholder('Input image...')
+                                // ->placeholder('Input image...')
                                 ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
                                 ->image()
                                 ->openable()

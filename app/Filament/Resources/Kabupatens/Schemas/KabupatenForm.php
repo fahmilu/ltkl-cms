@@ -72,7 +72,7 @@ class KabupatenForm
                             
                             FileUpload::make('image')
                                 ->label('Image')
-                                ->placeholder('Input image...')
+                                // ->placeholder('Input image...')
                                 ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
                                 ->openable()
                                 ->image()
@@ -517,7 +517,7 @@ class KabupatenForm
 
                         FileUpload::make('image')
                             ->label('Image')
-                            ->placeholder('Input image...')
+                            // ->placeholder('Input image...')
                             ->helperText('Ideal max size are ' . config('filehelper.portrait-image.max-size') . ' and dimensions are ' . config('filehelper.portrait-image.dimensions') . ' pixels.')
                             ->image()
                             ->openable()

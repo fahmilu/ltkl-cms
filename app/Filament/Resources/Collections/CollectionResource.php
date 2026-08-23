@@ -133,7 +133,12 @@ class CollectionResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('title_id')
+                    ->label('Title (ID)')
+                    ->placeholder('-')
+                    ->searchable(),
                 TextColumn::make('title')
+                    ->label('Title (EN)')
                     ->searchable(),
                 ImageColumn::make('image')->disk('public')->circular()->imageHeight(50),
             ])

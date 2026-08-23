@@ -80,7 +80,7 @@ class PostForm
 
                             FileUpload::make('image')
                                 ->label('Image')
-                                ->placeholder('Input image...')
+                                // ->placeholder('Input image...')
                                 ->helperText('Ideal max size are ' . config('filehelper.post-image.max-size') . ' and dimensions are ' . config('filehelper.post-image.dimensions') . ' pixels.')
                                 ->openable()
                                 ->image()
@@ -353,7 +353,7 @@ class PostForm
 
                 FileUpload::make('type_data.cover')
                     ->label('Cover')
-                    ->placeholder('Input cover...')
+                    // ->placeholder('Input cover...')
                     ->helperText('Document cover. Falls back to the post image when empty.')
                     ->openable()
                     ->image()
@@ -424,7 +424,7 @@ class PostForm
 
                 FileUpload::make('type_data.publisher_logo')
                     ->label('Publisher logo')
-                    ->placeholder('Input logo...')
+                    // ->placeholder('Input logo...')
                     ->openable()
                     ->image()
                     ->maxSize(2048000)->disk('public')

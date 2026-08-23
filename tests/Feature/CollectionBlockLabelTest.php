@@ -48,7 +48,9 @@ it('shows the chosen source in the block header', function () {
         ->and((string) $block->getLabel(['source' => CollectionComponentSource::KABUPATEN_MAP->value]))
         ->toBe('Collection: Kabupaten Map')
         ->and((string) $block->getLabel(['source' => CollectionComponentSource::PARTICIPATION_PATHWAYS->value]))
-        ->toBe('Collection: Participation Pathways');
+        ->toBe('Collection: Participation Pathways')
+        ->and((string) $block->getLabel(['source' => CollectionComponentSource::JOB_OPPORTUNITIES->value]))
+        ->toBe('Collection: Job Opportunities');
 });
 
 it('falls back to the plain name when no source is chosen yet', function () {

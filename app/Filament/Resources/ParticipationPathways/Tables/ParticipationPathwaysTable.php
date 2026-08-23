@@ -11,7 +11,6 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -23,7 +22,6 @@ class ParticipationPathwaysTable
     {
         return $table
             ->columns([
-                ImageColumn::make('image')->label('Image')->disk('public')->imageHeight(50),
                 TextColumn::make('title_id')
                     ->label('Title (ID)')
                     ->placeholder('-')

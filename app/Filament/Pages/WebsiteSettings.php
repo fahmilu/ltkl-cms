@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Grid;
@@ -42,13 +43,28 @@ class WebsiteSettings extends AbstractPageSettings
     ];
 
     /**
+     * Every upload on this page, guarded on save against a storage disk that is
+     * out of sync with the database.
+     *
+     * @var array<int, string>
+     */
+    protected const UPLOAD_KEYS = [
+        'favicon',
+        'main_logo',
+        'footer_logo',
+        'meta_image',
+    ];
+
+    /**
      * Provide default values.
      *
      * @return array<string, mixed>
      */
     public function getDefaultData(): array
     {
-        return [];
+        return [
+            'multi_language' => true,
+        ];
     }
 
     /**
@@ -80,7 +96,7 @@ class WebsiteSettings extends AbstractPageSettings
         foreach ($this->form->getState() as $key => $value) {
             $group = in_array($key, self::SEO_KEYS, true) ? 'seo' : $this->settingName();
 
-            if ($key === 'meta_image' && $this->metaImageIsMissingLocally($value)) {
+            if (in_array($key, self::UPLOAD_KEYS, true) && $this->uploadIsMissingLocally($group, $key, $value)) {
                 continue;
             }
 
@@ -142,7 +158,57 @@ class WebsiteSettings extends AbstractPageSettings
                                             'sm' => 1,
                                             'xl' => 6,
                                         ]),
+                                        FileUpload::make('main_logo')
+                                            ->label('Main logo')
+                                            ->placeholder('Input main logo...')
+                                            ->helperText('SVG, PNG or WEBP. Ideal max size are ' . config('filehelper.main-logo.max-size') . ' and dimensions are ' . config('filehelper.main-logo.dimensions') . ' pixels.')
+                                            ->image()
+                                            ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                            ->openable()
+                                            ->directory('logo')->disk('public')->visibility('public')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 6,
+                                            ]),
+                                        Toggle::make('multi_language')
+                                            ->label('Multi language')
+                                            ->inline(false)
+                                            ->onColor('primary')
+                                            ->offColor(null)
+                                            ->onIcon(Heroicon::Check)
+                                            ->offIcon(Heroicon::XMark)
+                                            ->default(true)
+                                            ->helperText('Turn off to hide the language switcher in frontend.')
+                                            ->columnSpan([
+                                                'sm' => 1,
+                                                'xl' => 6,
+                                            ]),
                                     ])->columnSpanFull(),
+                                // Footer
+                                Section::make('Footer')
+                                    ->schema([
+                                        FileUpload::make('footer_logo')
+                                            ->label('Footer logo')
+                                            ->placeholder('Input footer logo...')
+                                            ->helperText('SVG, PNG or WEBP. Ideal max size are ' . config('filehelper.footer-logo.max-size') . ' and dimensions are ' . config('filehelper.footer-logo.dimensions') . ' pixels.')
+                                            ->image()
+                                            ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                            ->openable()
+                                            ->directory('logo')->disk('public')->visibility('public')
+                                            ->columnSpanFull(),
+                                        Textarea::make('footer_description_id')
+                                            ->label('Footer description (Indonesian)')
+                                            ->placeholder('Input Indonesian footer description...')
+                                            ->autosize()
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        Textarea::make('footer_description')
+                                            ->label('Footer description (English)')
+                                            ->placeholder('Input footer description...')
+                                            ->autosize()
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                    ])->columns(2)->columnSpanFull(),
                                 // Social media
                                 Section::make()
                                     ->schema([
@@ -218,17 +284,17 @@ class WebsiteSettings extends AbstractPageSettings
 
     /**
      * FileUpload drops any file that is missing from the disk, so on an environment whose
-     * storage is not in sync (local, staging) the meta image would come back empty and a
-     * plain save of this page would wipe the stored reference. Keep it instead — the value
-     * is only cleared when the file really is on disk and the user removed it.
+     * storage is not in sync (local, staging) an upload would come back empty and a plain
+     * save of this page would wipe the stored reference. Keep it instead — the value is
+     * only cleared when the file really is on disk and the user removed it.
      */
-    protected function metaImageIsMissingLocally(mixed $value): bool
+    protected function uploadIsMissingLocally(string $group, string $key, mixed $value): bool
     {
         if (filled($value)) {
             return false;
         }
 
-        $stored = DbConfig::get('seo.meta_image');
+        $stored = DbConfig::get($group . '.' . $key);
 
         return filled($stored) && ! Storage::disk('public')->exists($stored);
     }

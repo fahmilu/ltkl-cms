@@ -20,7 +20,26 @@
       "Bash(awk 'NR>=225 && NR<=248' app/Filament/Resources/Pages/Schemas/PageForm.php)",
       "Bash(awk 'NR>=114 && NR<=152' app/Filament/Resources/Pages/Schemas/PageForm.php)",
       "Bash(perl -ni -e 'print unless /^use App\\\\\\\\Enums\\\\\\\\CollectionType;$/' tests/Feature/CollectionComponentTest.php)",
-      "Bash(php -l tests/Feature/CollectionComponentTest.php)"
+      "Bash(php -l tests/Feature/CollectionComponentTest.php)",
+      "Bash(./vendor/bin/pest)",
+      "Bash(git stash *)",
+      "Bash(./vendor/bin/pest tests/Feature/Settings)",
+      "Bash(grep *)",
+      "Bash(./vendor/bin/pest tests/Feature/PageSubmenuAnchorTest.php tests/Feature/PageComponentFieldsTest.php)",
+      "Bash(./vendor/bin/pest tests/Feature/PageSubmenuAnchorTest.php)",
+      "Bash(php -l app/Filament/Resources/Pages/Schemas/PageForm.php)",
+      "Bash(./vendor/bin/pest tests/Feature/PageComponentFieldsTest.php tests/Feature/PageSubmenuAnchorTest.php)",
+      "Bash(python3 -)",
+      "Bash(php -l app/Filament/Resources/ParticipationPathways/Schemas/ParticipationPathwayForm.php)",
+      "Bash(python3 -c ' *)",
+      "Bash(./vendor/bin/pest tests/Feature/KabupatenApiTest.php tests/Feature/KabupatenFormSmokeTest.php)",
+      "Bash(./vendor/bin/pest tests/Feature/KabupatenFormSmokeTest.php)",
+      "Bash(./vendor/bin/pest tests/Feature/DbgTest.php)",
+      "Bash(./vendor/bin/pest tests/Feature/KabupatenFormSmokeTest.php tests/Feature/KabupatenApiTest.php)",
+      "Bash(./vendor/bin/pest tests/Feature/KabupatenApiTest.php)",
+      "Bash(php -l app/Http/Resources/PageResource.php)",
+      "Bash(curl -sL -o figma-338-721.png \"https://www.figma.com/api/mcp/asset/665f8fc6-15fe-4f89-8c0b-db533d20ae33.png\")",
+      "Bash(./vendor/bin/pest tests/Feature/QuoteComponentTest.php)"
     ]
   }
 }

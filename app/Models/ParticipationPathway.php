@@ -20,8 +20,6 @@ class ParticipationPathway extends Model
      */
     protected $casts = [
         'is_active' => 'boolean',
-        'components' => 'array',
-        'components_id' => 'array',
         'deleted_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -34,15 +32,12 @@ class ParticipationPathway extends Model
      */
     protected $fillable = [
         'is_active',
-        'image',
         'title',
         'title_id',
         'slug',
         'slug_id',
         'description',
         'description_id',
-        'components',
-        'components_id',
         'sorted_at',
     ];
 }

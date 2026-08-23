@@ -40,6 +40,7 @@ it('saves a separate list of commodities and achievements per language', functio
             ],
             'achievements' => [
                 [
+                    'type' => 'data',
                     'value' => '12k ha',
                     'title' => 'High conservation value areas designated',
                     'description' => 'Mapped together with villages.',
@@ -48,6 +49,7 @@ it('saves a separate list of commodities and achievements per language', functio
             ],
             'achievements_id' => [
                 [
+                    'type' => 'data',
                     'value' => '12rb ha',
                     'title' => 'Kawasan bernilai konservasi tinggi ditetapkan',
                     'description' => 'Dipetakan bersama masyarakat desa.',
@@ -322,4 +324,69 @@ it('edits and deletes rows in one language without touching the other', function
         ->and(array_values($kabupaten->commodities)[0]['name'])->toBe('Cocoa beans')
         ->and(array_values($kabupaten->commodities_id))->toHaveCount(2)
         ->and(array_values($kabupaten->commodities_id)[1]['name'])->toBe('Kopi');
+});
+
+it('saves a quote impact with its own fields', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'achievements' => [
+                [
+                    'type' => 'quote',
+                    'quote' => 'We mapped the boundaries together.',
+                    'name' => 'Head of Siak District',
+                ],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $row = array_values(Kabupaten::firstWhere('slug', 'siak-regency')->achievements)[0];
+
+    expect($row['type'])->toBe('quote')
+        ->and($row['quote'])->toBe('We mapped the boundaries together.')
+        ->and($row['name'])->toBe('Head of Siak District');
+});
+
+it('saves a text impact with a title and description', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'achievements' => [
+                [
+                    'type' => 'text',
+                    'title' => 'How the district works',
+                    'description' => 'Villages, mills and the district office share one plan.',
+                ],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $row = array_values(Kabupaten::firstWhere('slug', 'siak-regency')->achievements)[0];
+
+    expect($row['type'])->toBe('text')
+        ->and($row['title'])->toBe('How the district works')
+        ->and($row['description'])->toBe('Villages, mills and the district office share one plan.');
+});
+
+it('needs a value only on a data impact', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'achievements' => [
+                ['type' => 'data', 'title' => 'No number given'],
+            ],
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['achievements.0.value']);
 });

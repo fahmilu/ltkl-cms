@@ -26,6 +26,16 @@ html.fi {
         @apply bg-[##00444C];
     }
 
+    .fi-fo-rich-editor-tool[aria-label="Heading 2"] span,
+    .fi-fo-rich-editor-tool[aria-label="Heading 3"] span {
+        @apply bg-black p-1 rounded;
+        
+    }
+
+    .filepond--image-preview {
+        @apply bg-gray-200;
+    }
+
     .fi-fo-builder-item-header, .fi-modal-window, .fi-sc-tabs.fi-contained, .fi-ta-ctn.fi-ta-ctn-with-header, .fi-fieldset, .fi-section, .fi-section-content {
         @apply rounded-md shadow-[0_8px_8px_0_rgba(100,100,100,0.05),0_15px_35px_0_rgba(80,80,80,0.05),0_0_0_1px_rgba(85,87,89,0.1)] dark:shadow-[0_20px_35px_0_rgba(22,22,22,0.25),0_10px_23px_0_rgba(23,23,23,0.35),0_0_0_1px_rgba(85,87,89,0.3)];
     }

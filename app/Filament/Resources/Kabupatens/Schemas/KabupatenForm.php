@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Kabupatens\Schemas;
 
+use App\Enums\ImpactType;
 use App\Models\Kabupaten;
 use App\Models\Pillar;
 use App\Services\LocationSearch;
@@ -381,7 +382,7 @@ class KabupatenForm
     {
         $isEnglish = $suffix === '';
 
-        return Section::make('Komoditas Potensial')
+        return Section::make('Commodities')
             ->description('Potential commodity cards for this language. Drag to reorder — the card numbering follows this order.')
             ->icon(Heroicon::OutlinedSparkles)
             ->collapsible()
@@ -418,41 +419,73 @@ class KabupatenForm
     }
 
     /**
-     * Local impact rows, also per language. The value is part of the translated
+     * Local impact rows, also per language. A row is one of three types, and
+     * the inputs follow the type. The data value is part of the translated
      * content because number formatting differs, for example "12rb ha" against "12k ha".
      */
     private static function getAchievements($suffix): Section
     {
         $isEnglish = $suffix === '';
+        $module = 'kabupatens';
 
-        return Section::make('Capaian yang Bisa Dihitung')
-            ->description('Measurable local impact for this language. Each row needs a source so the number is traceable.')
+        // Rows saved before the types existed have no type and are data rows.
+        $isType = fn(ImpactType $type): callable => fn(Get $get): bool => ImpactType::fromState($get('type')) === $type;
+
+        return Section::make('Impacts')
+            ->description('Local impact for this language: a measurable number, a quote, or a block of text.')
             ->icon(Heroicon::OutlinedChartBar)
             ->collapsible()
             ->schema([
                 Repeater::make('achievements' . $suffix)
                     ->hiddenLabel()
-                    ->addActionLabel('Add achievement')
-                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                    ->addActionLabel('Add Impact')
+                    ->itemLabel(fn(array $state): ?string => self::impactLabel($state))
                     ->reorderableWithDragAndDrop()
                     ->collapsible()
                     ->collapsed()
                     ->cloneable()
                     ->defaultItems(0)
                     ->schema([
+                        Select::make('type')
+                            ->label('Type')
+                            ->options(ImpactType::class)
+                            ->default(ImpactType::DATA->value)
+                            // Rows stored before the types existed hydrate as data
+                            // rows, so an old kabupaten opens without validation errors.
+                            ->formatStateUsing(fn($state): string => ImpactType::fromState($state)->value)
+                            ->selectablePlaceholder(false)
+                            ->native(false)
+                            // Swap the inputs and refresh the row header.
+                            ->live()
+                            ->required()
+                            ->columnSpanFull(),
+
+                        // Data
                         TextInput::make('value')
                             ->label('Value')
                             ->placeholder($isEnglish ? '12k ha' : '12rb ha')
-                            ->required()
+                            ->required(fn(Get $get): bool => ImpactType::fromState($get('type')) === ImpactType::DATA)
+                            ->visible($isType(ImpactType::DATA))
                             ->columnSpan(1),
 
+                        TextInput::make('source')
+                            ->label('Source')
+                            ->placeholder($isEnglish
+                                ? 'Source: Regent Decree 2024 · updated Mar 2026'
+                                : 'Sumber: SK Bupati 2024 · diperbarui Mar 2026')
+                            ->nullable()
+                            ->visible($isType(ImpactType::DATA))
+                            ->columnSpan(1),
+
+                        // Data and Text share the title and description.
                         TextInput::make('title')
                             ->label('Title')
                             ->placeholder($isEnglish
                                 ? 'High conservation value areas designated'
                                 : 'Kawasan bernilai konservasi tinggi ditetapkan')
-                            ->required()
-                            ->columnSpan(1),
+                            ->required(fn(Get $get): bool => ImpactType::fromState($get('type')) !== ImpactType::QUOTE)
+                            ->visible(fn(Get $get): bool => ImpactType::fromState($get('type')) !== ImpactType::QUOTE)
+                            ->columnSpanFull(),
 
                         Textarea::make('description')
                             ->label('Description')
@@ -461,19 +494,62 @@ class KabupatenForm
                                 : 'Ditetapkan lewat SK Bupati, dengan batas yang dipetakan bersama masyarakat desa.')
                             ->rows(3)
                             ->nullable()
+                            ->visible(fn(Get $get): bool => ImpactType::fromState($get('type')) !== ImpactType::QUOTE)
                             ->columnSpanFull(),
 
-                        TextInput::make('source')
-                            ->label('Source')
+                        // Quote
+                        Textarea::make('quote')
+                            ->label('Quote')
                             ->placeholder($isEnglish
-                                ? 'Source: Regent Decree 2024 · updated Mar 2026'
-                                : 'Sumber: SK Bupati 2024 · diperbarui Mar 2026')
+                                ? 'We mapped the boundaries together, village by village.'
+                                : 'Kami memetakan batas bersama-sama, desa demi desa.')
+                            ->rows(3)
+                            ->required($isType(ImpactType::QUOTE))
+                            ->visible($isType(ImpactType::QUOTE))
+                            ->columnSpanFull(),
+
+                        TextInput::make('name')
+                            ->label('Name')
+                            ->placeholder($isEnglish ? 'Head of Siak District' : 'Bupati Siak')
+                            ->required($isType(ImpactType::QUOTE))
+                            ->visible($isType(ImpactType::QUOTE))
+                            ->columnSpanFull(),
+
+                        FileUpload::make('image')
+                            ->label('Image')
+                            ->placeholder('Input image...')
+                            ->helperText('Ideal max size are ' . config('filehelper.portrait-image.max-size') . ' and dimensions are ' . config('filehelper.portrait-image.dimensions') . ' pixels.')
+                            ->image()
+                            ->openable()
+                            ->removeUploadedFileButtonPosition('bottom')
+                            ->disk('public')->visibility('public')
+                            ->directory($module)->preserveFilenames()
+                            ->acceptedFileTypes(config('filesystems.image_mimes'))
                             ->nullable()
+                            ->visible($isType(ImpactType::QUOTE))
                             ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
             ])
             ->columnSpanFull();
+    }
+
+    /**
+     * Collapsed rows are told apart by whichever field carries their meaning.
+     *
+     * @param  array<string, mixed>  $state
+     */
+    private static function impactLabel(array $state): ?string
+    {
+        $type = ImpactType::fromState($state['type'] ?? null);
+
+        $label = $type === ImpactType::QUOTE
+            ? ($state['name'] ?? null) ?: ($state['quote'] ?? null)
+            : ($state['title'] ?? null);
+
+        $label = is_string($label) ? trim($label) : '';
+
+        return $label === '' ? $type->getLabel() : $type->getLabel() . ': ' . Str::limit($label, 60);
     }
 }

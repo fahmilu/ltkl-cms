@@ -14,6 +14,7 @@ enum CollectionComponentSource: string implements HasLabel
     case KABUPATEN_MAP = 'kabupaten_map';
     case PILLARS = 'pillars';
     case PARTICIPATION_PATHWAYS = 'participation_pathways';
+    case JOB_OPPORTUNITIES = 'job_opportunities';
 
     public function getLabel(): string
     {
@@ -21,6 +22,7 @@ enum CollectionComponentSource: string implements HasLabel
             self::KABUPATEN_MAP => 'Kabupaten Map',
             self::PILLARS => 'Pillars',
             self::PARTICIPATION_PATHWAYS => 'Participation Pathways',
+            self::JOB_OPPORTUNITIES => 'Job Opportunities',
         };
     }
 
@@ -33,6 +35,7 @@ enum CollectionComponentSource: string implements HasLabel
             self::KABUPATEN_MAP => '/api/kabupatens/map',
             self::PILLARS => '/api/pillars',
             self::PARTICIPATION_PATHWAYS => '/api/participation-pathways',
+            self::JOB_OPPORTUNITIES => '/api/job-opportunities',
         };
     }
 }

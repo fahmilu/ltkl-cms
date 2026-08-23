@@ -381,15 +381,12 @@
     "participation_pathways": [
         {
             "is_active": 1,
-            "image": null,
             "title": "Donatur",
             "title_id": "Donatur",
             "slug": "donatur",
             "slug_id": "donatur",
             "description": null,
             "description_id": "Danai kerja terukur di\nsembilan kabupaten.",
-            "components": null,
-            "components_id": null,
             "sorted_at": 0,
             "deleted_at": null,
             "created_at": "2026-08-10 03:51:25",

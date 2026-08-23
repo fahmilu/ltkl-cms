@@ -2,6 +2,7 @@
 
 use App\Models\Kabupaten;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -271,4 +272,77 @@ it('returns empty arrays when a kabupaten has no rows', function () {
         ->and($data['commodities_id'])->toBe([])
         ->and($data['achievements'])->toBe([])
         ->and($data['achievements_id'])->toBe([]);
+});
+
+it('serves each impact type on its own shape', function () {
+    makeKabupaten([
+        'achievements' => [
+            [
+                'type' => 'data',
+                'value' => '12k ha',
+                'title' => 'High conservation value areas designated',
+                'description' => 'Mapped together with villages.',
+                'source' => 'Source: Regent Decree 2024',
+            ],
+            [
+                'type' => 'quote',
+                'quote' => 'We mapped the boundaries together.',
+                'name' => 'Head of Siak District',
+                'image' => 'kabupatens/regent.jpg',
+            ],
+            [
+                'type' => 'text',
+                'title' => 'How the district works',
+                'description' => 'Villages, mills and the district office share one plan.',
+            ],
+        ],
+    ]);
+
+    $rows = $this->getJson('/api/kabupaten/siak-regency')->assertOk()->json('data.achievements');
+
+    expect($rows[0])->toBe([
+        'type' => 'data',
+        'value' => '12k ha',
+        'title' => 'High conservation value areas designated',
+        'description' => 'Mapped together with villages.',
+        'source' => 'Source: Regent Decree 2024',
+    ]);
+
+    expect($rows[1])->toBe([
+        'type' => 'quote',
+        'quote' => 'We mapped the boundaries together.',
+        'name' => 'Head of Siak District',
+        'image' => Storage::disk('public')->url('kabupatens/regent.jpg'),
+    ]);
+
+    expect($rows[2])->toBe([
+        'type' => 'text',
+        'title' => 'How the district works',
+        'description' => 'Villages, mills and the district office share one plan.',
+    ]);
+});
+
+it('reads a row saved before the impact types existed as a data row', function () {
+    // No type key at all, exactly how the rows are stored today.
+    $rows = $this->getJson('/api/kabupaten/' . makeKabupaten()->slug)->assertOk()
+        ->json('data.achievements');
+
+    expect($rows[0])->toBe([
+        'type' => 'data',
+        'value' => '12k ha',
+        'title' => 'High conservation value areas designated',
+        'description' => 'Mapped together with villages.',
+        'source' => 'Source: Regent Decree 2024',
+    ]);
+});
+
+it('leaves a quote without an image as null', function () {
+    makeKabupaten([
+        'achievements' => [
+            ['type' => 'quote', 'quote' => 'Village by village.', 'name' => 'Head of Siak District'],
+        ],
+    ]);
+
+    expect($this->getJson('/api/kabupaten/siak-regency')->assertOk()
+        ->json('data.achievements.0.image'))->toBeNull();
 });

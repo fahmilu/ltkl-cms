@@ -103,10 +103,15 @@ use App\Models\Kabupaten;
  * @OA\Schema(
  *     schema="KabupatenAchievement",
  *     type="object",
- *     @OA\Property(property="value", type="string", nullable=true, example="12rb ha"),
- *     @OA\Property(property="title", type="string", nullable=true),
- *     @OA\Property(property="description", type="string", nullable=true),
- *     @OA\Property(property="source", type="string", nullable=true, example="Sumber: SK Bupati 2024 · diperbarui Mar 2026")
+ *     description="One impact row. The keys present depend on the type: data carries value, title, description and source; quote carries quote, name and image; text carries title and description.",
+ *     @OA\Property(property="type", type="string", enum={"data", "quote", "text"}, example="data"),
+ *     @OA\Property(property="value", type="string", nullable=true, example="12rb ha", description="data only"),
+ *     @OA\Property(property="title", type="string", nullable=true, description="data and text"),
+ *     @OA\Property(property="description", type="string", nullable=true, description="data and text"),
+ *     @OA\Property(property="source", type="string", nullable=true, example="Sumber: SK Bupati 2024 · diperbarui Mar 2026", description="data only"),
+ *     @OA\Property(property="quote", type="string", nullable=true, description="quote only"),
+ *     @OA\Property(property="name", type="string", nullable=true, description="quote only"),
+ *     @OA\Property(property="image", type="string", nullable=true, description="quote only, full URL")
  * )
  */
 class KabupatenController extends Controller

@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\CollectionController;
 use App\Http\Controllers\Api\ContactUsController;
+use App\Http\Controllers\Api\JobOpportunityController;
 use App\Http\Controllers\Api\KabupatenController;
+use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\ParticipationPathwayController;
 use App\Http\Controllers\Api\PillarController;
@@ -33,9 +35,14 @@ Route::get('pillar/{slug}', [PillarController::class, 'show']);
 /* Participation Pathways */
 Route::get('participation-pathways', [ParticipationPathwayController::class, 'index']);
 Route::get('participation-pathway/{slug}', [ParticipationPathwayController::class, 'show']);
+/* Job Opportunities */
+Route::get('job-opportunities', [JobOpportunityController::class, 'index']);
+Route::get('job-opportunity/{slug}', [JobOpportunityController::class, 'show']);
 /* Settings */
 Route::get('settings', [SettingController::class, 'index']);
-/* Navigation */
+/* Menus */
+Route::get('menus', [MenuController::class, 'index']);
+/* Navigation | same payload as /menus, kept for the frontends already on it */
 Route::get('navigations', [PageController::class, 'navigations']);
 /* Contact Us */
 Route::post('contact-us', [ContactUsController::class, 'store']);

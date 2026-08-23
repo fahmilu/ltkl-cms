@@ -34,12 +34,24 @@ class PagesTable
     {
         return $table
             ->columns([
+                TextColumn::make('title_id')
+                    ->label('Title (ID)')
+                    ->formatStateUsing(function ($record) {
+                        $parent = $record->menu_parent_id ? $record->page_parent?->title_id : null;
+
+                        return filled($parent) ? $parent . ' / ' . $record->title_id : $record->title_id;
+                    })
+                    ->placeholder('-')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('title')
+                    ->label('Title (EN)')
                     ->formatStateUsing(function ($record) {
                         return $record->menu_parent_id ? $record->page_parent->title . ' / ' . $record->title : $record->title;
                     })
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: false),
                 ToggleColumn::make('is_default')->label('Default')
                     ->onColor('primary')->offColor(null)->onIcon(Heroicon::Check)
                     ->beforeStateUpdated(function (Set $set, $record) {

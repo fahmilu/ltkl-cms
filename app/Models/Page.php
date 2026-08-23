@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -55,6 +56,32 @@ class Page extends Model
         'menu_url_target',
         'sorted_at',
     ];
+
+    /**
+     * A page can sit in several menu groups, so the column holds a list.
+     * A plain "main" left over from before the column became json still reads
+     * as a one-item list, rather than an array cast turning it into null.
+     */
+    protected function menuGroup(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value): ?array {
+                if ($value === null || $value === '') {
+                    return null;
+                }
+
+                $decoded = json_decode($value, true);
+
+                return is_array($decoded) ? $decoded : [$value];
+            },
+            set: function ($value): ?string {
+                $groups = array_values(array_filter((array) $value, fn($group) => $group !== null && $group !== ''));
+
+                // Nothing picked means no menu at all, not an empty list.
+                return $groups === [] ? null : json_encode($groups);
+            },
+        );
+    }
 
     /**
      * @return HasOne

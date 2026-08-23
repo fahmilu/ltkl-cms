@@ -3,8 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
+// This is a headless CMS: the public site is served elsewhere, so the root URL
+// deliberately 404s rather than exposing a landing page. The route stays
+// registered and named because the auth layouts link to route('home').
 Route::get('/', function () {
-    return view('welcome');
+    abort(404);
 })->name('home');
 
 Route::view('dashboard', 'dashboard')

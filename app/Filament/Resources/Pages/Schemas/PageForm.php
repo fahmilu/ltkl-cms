@@ -2,7 +2,10 @@
 
 namespace App\Filament\Resources\Pages\Schemas;
 
+use App\Enums\BlockBackgroundColor;
 use App\Enums\CollectionComponentSource;
+use App\Enums\CollectionDisplay;
+use App\Enums\ImagePosition;
 use App\Filament\Helpers\FormHelper;
 use App\Models\Page;
 use Filament\Actions\Action;
@@ -93,7 +96,7 @@ class PageForm
                                     'main' => 'Main',
                                     'header' => 'Header',
                                     'footer' => 'Footer',
-                                ])->nullable()->native(false)->searchable()->columnSpanFull(),
+                                ])->multiple()->nullable()->native(false)->searchable()->helperText('The page shows up in every group picked here.')->columnSpanFull(),
                             ])->columns(2)->columnSpanFull(),
 
                         // Seo Settings
@@ -202,7 +205,8 @@ class PageForm
                         * Label
                         * Title
                         * Description
-                        * Source (Kabupaten Map, Pillars, Participation Pathways)
+                        * Source (Kabupaten Map, Pillars, Participation Pathways, Job Opportunities)
+                        * Display, on the Participation Pathways source only
                         */
                         Builder\Block::make('collection')
                             // Null state means the block picker, which needs the
@@ -220,6 +224,7 @@ class PageForm
                                     : 'Collection';
                             })
                             ->schema([
+                                ...FormHelper::submenuFields(),
                                 TextInput::make('label')
                                     ->label('Label')
                                     ->placeholder('Input label...')
@@ -233,11 +238,93 @@ class PageForm
                                     ->options(CollectionComponentSource::class)
                                     ->helperText('Which dataset this section renders.')
                                     ->native(false)
-                                    // Refresh the block header as soon as it changes.
+                                    // Refresh the block header, and the display
+                                    // choice, as soon as it changes.
                                     ->live()
                                     ->required()
                                     ->columnSpanFull(),
+                                // Only the pathways render more than one way, so
+                                // the choice is not put in front of the other sources.
+                                Select::make('display')
+                                    ->label('Display')
+                                    ->options(CollectionDisplay::class)
+                                    ->helperText('How the pathways are laid out.')
+                                    ->default(CollectionDisplay::SIDE_ACCORDION->value)
+                                    // Blocks saved before the choice existed hydrate
+                                    // as the side accordion they already render as.
+                                    ->formatStateUsing(fn($state): string => CollectionDisplay::fromState($state)->value)
+                                    ->selectablePlaceholder(false)
+                                    ->native(false)
+                                    ->required(fn(Get $get): bool => self::isPathwaysSource($get('source')))
+                                    ->visible(fn(Get $get): bool => self::isPathwaysSource($get('source')))
+                                    ->columnSpanFull(),
                                 FormHelper::makeRichEditor('description', 'Description'),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+
+                        /* Banner Statistic Block
+                        * Banner and statistic in one section, without the image.
+                        * Label
+                        * Title
+                        * Description
+                        * Items (Repeater, max 4) - Title, Value, Unit
+                        * Button #1 Text, Button #1 URL
+                        * Button #2 Text, Button #2 URL
+                        */
+                        Builder\Block::make('banner_statistic')
+                            ->label('Banner Statistic')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->required()
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                Repeater::make('items')
+                                    ->label('Items')
+                                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                                    ->reorderableWithDragAndDrop()
+                                    ->cloneable()
+                                    ->maxItems(4)
+                                    ->schema([
+                                        TextInput::make('title')
+                                            ->label('Title')
+                                            ->placeholder('Input title...')
+                                            ->columnSpan(1),
+                                        TextInput::make('value')
+                                            ->label('Value')
+                                            ->placeholder('Input value...')
+                                            ->columnSpan(1),
+                                        TextInput::make('unit')
+                                            ->label('Unit')
+                                            ->placeholder('ha, km², %...')
+                                            ->columnSpan(1),
+                                    ])->columns(3)
+                                    ->columnSpanFull(),
+                                TextInput::make('button_1_text')
+                                    ->label('Button #1 Text')
+                                    ->placeholder('Input button #1 text...')
+                                    ->columnSpan(1),
+                                TextInput::make('button_1_url')
+                                    ->label('Button #1 URL')
+                                    ->placeholder('Input button #1 url...')
+                                    ->suffixIcon(Heroicon::GlobeAlt)
+                                    ->columnSpan(1),
+                                TextInput::make('button_2_text')
+                                    ->label('Button #2 Text')
+                                    ->placeholder('Input button #2 text...')
+                                    ->columnSpan(1),
+                                TextInput::make('button_2_url')
+                                    ->label('Button #2 URL')
+                                    ->placeholder('Input button #2 url...')
+                                    ->suffixIcon(Heroicon::GlobeAlt)
+                                    ->columnSpan(1),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
@@ -251,6 +338,7 @@ class PageForm
                         Builder\Block::make('latest_news')
                             ->label('Latest News')
                             ->schema([
+                                ...FormHelper::submenuFields(),
                                 TextInput::make('label')
                                     ->label('Label')
                                     ->placeholder('Input label...')
@@ -267,13 +355,14 @@ class PageForm
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
-                        
+
                         /* Lead Text Block
                         * Lead
                         */
                         Builder\Block::make('lead_text')
                             ->label('Lead Text')
                             ->schema([
+                                ...FormHelper::submenuFields(null),
                                 FormHelper::makeRichEditor('lead', 'Lead'),
                             ])
                             ->columnSpanFull(),
@@ -285,6 +374,7 @@ class PageForm
                         Builder\Block::make('paragraph')
                             ->label('Paragraph')
                             ->schema([
+                                ...FormHelper::submenuFields(),
                                 TextInput::make('title')
                                     ->label('Title')
                                     ->placeholder('Input title...')
@@ -299,11 +389,29 @@ class PageForm
                         Builder\Block::make('post_index')
                             ->label('Post Index')
                             ->schema([
+                                ...FormHelper::submenuFields(null),
                                 Section::make('Post Index')->description('Should be showing the news list')->schema([])->columnSpanFull(),
                             ])->columnSpanFull(),
-                        
+
+                        /* Quote Block
+                        * Quote
+                        */
+                        Builder\Block::make('quote')
+                            ->label('Quote')
+                            ->schema([
+                                ...FormHelper::submenuFields(null),
+                                Textarea::make('quote')
+                                    ->label('Quote')
+                                    ->placeholder('Input quote...')
+                                    ->rows(3)
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ])->columnSpanFull(),
+
+
                         /* Text Image Block
-                        * Image
+                        * Is Block, Background Color
+                        * Image, Image Position
                         * Lead
                         * Label
                         * Title
@@ -314,6 +422,30 @@ class PageForm
                         Builder\Block::make('text_image')
                             ->label('Text Image')
                             ->schema([
+                                ...FormHelper::submenuFields(),
+                                Toggle::make('is_block')
+                                    ->label('Show as colour block')
+                                    ->helperText('Fill the section with a brand colour behind the text.')
+                                    ->onColor('primary')
+                                    ->offColor(null)
+                                    ->onIcon(Heroicon::Check)
+                                    ->offIcon(Heroicon::XMark)
+                                    ->default(false)
+                                    ->live()
+                                    ->columnSpanFull(),
+                                Select::make('background_color')
+                                    ->label('Background Color')
+                                    ->options(self::backgroundColorOptions())
+                                    ->default(BlockBackgroundColor::CYAN->value)
+                                    // A colour saved before it left the palette hydrates as
+                                    // empty, so the block reopens without a validation error.
+                                    ->formatStateUsing(fn($state): ?string => BlockBackgroundColor::fromState($state))
+                                    ->allowHtml()
+                                    ->selectablePlaceholder(false)
+                                    ->native(false)
+                                    ->required(fn(Get $get): bool => (bool) $get('is_block'))
+                                    ->visible(fn(Get $get): bool => (bool) $get('is_block'))
+                                    ->columnSpanFull(),
                                 FileUpload::make('image')
                                     ->label('Image')
                                     ->placeholder('Input image...')
@@ -323,6 +455,16 @@ class PageForm
                                     ->directory('pages')
                                     ->disk('public')
                                     ->visibility('public')
+                                    ->required()
+                                    ->columnSpanFull(),
+                                Select::make('image_position')
+                                    ->label('Image Position')
+                                    ->options(ImagePosition::class)
+                                    ->default(ImagePosition::RIGHT->value)
+                                    // Blocks saved before the option existed hydrate as right.
+                                    ->formatStateUsing(fn($state): string => ImagePosition::fromState($state)->value)
+                                    ->selectablePlaceholder(false)
+                                    ->native(false)
                                     ->required()
                                     ->columnSpanFull(),
                                 FormHelper::makeRichEditor('lead', 'Lead'),
@@ -359,6 +501,7 @@ class PageForm
                         Builder\Block::make('single_image')
                             ->label('Single Image')
                             ->schema([
+                                ...FormHelper::submenuFields(null),
                                 FileUpload::make('image')
                                     ->label('Image')
                                     ->placeholder('Input image...')
@@ -378,7 +521,7 @@ class PageForm
                             ->columnSpanFull(),
 
                         /* Statistic Block
-                        * Items (Repeater) - Title, Value, Unit
+                        * Items (Repeater, max 4) - Title, Value, Unit
                         * Button Text, Button URL
                         */
                         Builder\Block::make('statistic')
@@ -386,6 +529,7 @@ class PageForm
                             ->schema([
                                 Repeater::make('items')
                                     ->label('Items')
+                                    ->maxItems(4)
                                     ->schema([
                                         TextInput::make('title')
                                             ->label('Title')
@@ -413,75 +557,68 @@ class PageForm
                             ])->columns(2)
                             ->columnSpanFull(),
 
-                        /* Your Role Block
+                        /* The Values, The Problems and The Vision Blocks
                         * Label
                         * Title
                         * Description
-                        * Show Icon
-                        * Items (Repeater) - Label, Title, Description, Icon, Link, Link Label
+                        * Items (Repeater) - Title, Description, and an Image on The Vision
                         */
-                        Builder\Block::make('your_role')
-                            ->label('Your Role')
+                        self::getListBlock('the_values', 'The Values'),
+                        self::getListBlock('the_problems', 'The Problems'),
+                        self::getListBlock('the_vision', 'The Vision', withItemImage: true),
+
+                        /* Journey Block
+                        * Label
+                        * Title
+                        * Description
+                        * Items (Repeater) - Title, Period, Description
+                        * The step number comes from the row order, so reordering renumbers.
+                        */
+                        Builder\Block::make('journey')
+                            ->label('Journey')
                             ->schema([
+                                ...FormHelper::submenuFields(),
                                 TextInput::make('label')
                                     ->label('Label')
-                                    ->placeholder('Input label...')
+                                    ->placeholder('Perjalanan')
                                     ->columnSpan(1),
                                 TextInput::make('title')
                                     ->label('Title')
-                                    ->placeholder('Input title...')
+                                    ->placeholder('Gerakan yang Terus Bertumbuh')
                                     ->columnSpan(1),
                                 FormHelper::makeRichEditor('description', 'Description'),
-                                Toggle::make('show_icon')
-                                    ->label('Show Icon')
-                                    ->helperText('Hide to render the items without their icons.')
-                                    ->onColor('primary')
-                                    ->offColor(null)
-                                    ->onIcon(Heroicon::Check)
-                                    ->offIcon(Heroicon::XMark)
-                                    ->default(true)
-                                    ->columnSpanFull(),
                                 Repeater::make('items')
-                                    ->label('Items')
+                                    ->label('Steps')
+                                    ->addActionLabel('Add step')
                                     ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
                                     ->reorderableWithDragAndDrop()
                                     ->collapsible()
                                     ->collapsed()
                                     ->cloneable()
                                     ->schema([
-                                        TextInput::make('label')
-                                            ->label('Label')
-                                            ->placeholder('Input label...')
-                                            ->columnSpan(1),
                                         TextInput::make('title')
                                             ->label('Title')
-                                            ->placeholder('Input title...')
+                                            ->placeholder('Mencari cara')
+                                            ->required()
+                                            ->columnSpan(1),
+                                        TextInput::make('period')
+                                            ->label('Period')
+                                            ->placeholder('2018–2020')
                                             ->columnSpan(1),
                                         Textarea::make('description')
                                             ->label('Description')
-                                            ->placeholder('Input description...')
+                                            ->placeholder('Beberapa kabupaten mulai berkumpul...')
                                             ->rows(3)
                                             ->columnSpanFull(),
-                                        FileUpload::make('icon')
-                                            ->label('Icon')
-                                            ->placeholder('Input icon...')
-                                            ->helperText('SVG or PNG, shown only while Show Icon is on.')
-                                            ->image()
-                                            ->removeUploadedFileButtonPosition('bottom')
-                                            ->directory('pages')
-                                            ->disk('public')
-                                            ->visibility('public')
-                                            ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                        Toggle::make('is_past')
+                                            ->label('Is past')
+                                            ->helperText('Turn on for a step that already happened.')
+                                            ->onColor('primary')
+                                            ->offColor(null)
+                                            ->onIcon(Heroicon::Check)
+                                            ->offIcon(Heroicon::XMark)
+                                            ->default(false)
                                             ->columnSpanFull(),
-                                        TextInput::make('link')
-                                            ->label('Link')
-                                            ->placeholder('Input link...')
-                                            ->suffixIcon(Heroicon::GlobeAlt)
-                                            ->columnSpan(1),
-                                        TextInput::make('link_label')
-                                            ->label('Link Label')
-                                            ->placeholder('Input link label...')
-                                            ->columnSpan(1),
                                     ])->columns(2)
                                     ->columnSpanFull(),
                             ])->columns(2)
@@ -495,5 +632,101 @@ class PageForm
             ])
             ->columns(2)
             ->columnSpanFull();
+    }
+
+    /**
+     * A titled section over a list of items: The Values, The Problems and The
+     * Vision are the same block, and only The Vision illustrates its items.
+     */
+    private static function getListBlock(string $name, string $label, bool $withItemImage = false): Builder\Block
+    {
+        return Builder\Block::make($name)
+            ->label($label)
+            ->schema([
+                ...FormHelper::submenuFields(),
+                TextInput::make('label')
+                    ->label('Label')
+                    ->placeholder('Input label...')
+                    ->columnSpan(1),
+                TextInput::make('title')
+                    ->label('Title')
+                    ->placeholder('Input title...')
+                    ->columnSpan(1),
+                FormHelper::makeRichEditor('description', 'Description'),
+                Repeater::make('items')
+                    ->label('Items')
+                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                    ->reorderableWithDragAndDrop()
+                    ->collapsible()
+                    ->collapsed()
+                    ->cloneable()
+                    ->schema([
+                        TextInput::make('title')
+                            ->label('Title')
+                            ->placeholder('Input title...')
+                            ->columnSpanFull(),
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->placeholder('Input description...')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                        ...($withItemImage ? [
+                            FileUpload::make('image')
+                                ->label('Image')
+                                ->placeholder('Input image...')
+                                ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
+                                ->image()
+                                ->openable()
+                                ->removeUploadedFileButtonPosition('bottom')
+                                ->directory('pages')
+                                ->disk('public')
+                                ->visibility('public')
+                                ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                ->nullable()
+                                ->columnSpanFull(),
+                        ] : []),
+                    ])->columns(1)
+                    ->columnSpanFull(),
+            ])->columns(2)
+            ->columnSpanFull();
+    }
+
+    /**
+     * Whether a Collection block's source is the pathways.
+     *
+     * The select hands back an instance of the enum, while a block read from the
+     * database holds the plain string, so both shapes are answered here.
+     */
+    private static function isPathwaysSource($state): bool
+    {
+        $source = $state instanceof CollectionComponentSource
+            ? $state
+            : (is_string($state) ? CollectionComponentSource::tryFrom($state) : null);
+
+        return $source === CollectionComponentSource::PARTICIPATION_PATHWAYS;
+    }
+
+    /**
+     * The Text Image background palette, each option drawn as a swatch next to
+     * its label so the colour is picked by eye rather than by hex code.
+     *
+     * @return array<string, string>
+     */
+    private static function backgroundColorOptions(): array
+    {
+        $options = [];
+
+        foreach (BlockBackgroundColor::cases() as $color) {
+            // Styled inline rather than with utility classes: the swatch is
+            // painted with the stored hex itself, so no theme rebuild is needed
+            // when the palette changes.
+            $options[$color->value] = '<span style="display: inline-flex; align-items: center; gap: 0.5rem;">'
+                . '<span style="display: inline-block; width: 1rem; height: 1rem; border-radius: 9999px;'
+                . ' box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.2); background-color: ' . e($color->value) . ';"></span>'
+                . e($color->getLabel())
+                . '</span>';
+        }
+
+        return $options;
     }
 }

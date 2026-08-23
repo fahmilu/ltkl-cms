@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ImpactType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -80,16 +81,40 @@ class KabupatenResource extends JsonResource
     }
 
     /**
+     * An impact row carries only the fields of its own type, with the type
+     * itself always present so the frontend can switch on it. Rows saved before
+     * the types existed have no type and serialise as data rows, unchanged.
+     *
      * @return array<int, array<string, mixed>>
      */
     private function achievements($rows): array
     {
-        return $this->rows($rows, fn(array $row): array => [
-            'value' => $row['value'] ?? null,
-            'title' => $row['title'] ?? null,
-            'description' => $row['description'] ?? null,
-            'source' => $row['source'] ?? null,
-        ]);
+        return $this->rows($rows, function (array $row): array {
+            $type = ImpactType::fromState($row['type'] ?? null);
+
+            return match ($type) {
+                ImpactType::QUOTE => [
+                    'type' => $type->value,
+                    'quote' => $row['quote'] ?? null,
+                    'name' => $row['name'] ?? null,
+                    'image' => !empty($row['image'])
+                        ? Storage::disk('public')->url($row['image'])
+                        : null,
+                ],
+                ImpactType::TEXT => [
+                    'type' => $type->value,
+                    'title' => $row['title'] ?? null,
+                    'description' => $row['description'] ?? null,
+                ],
+                ImpactType::DATA => [
+                    'type' => $type->value,
+                    'value' => $row['value'] ?? null,
+                    'title' => $row['title'] ?? null,
+                    'description' => $row['description'] ?? null,
+                    'source' => $row['source'] ?? null,
+                ],
+            };
+        });
     }
 
     /**

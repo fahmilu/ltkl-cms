@@ -12,25 +12,12 @@ use App\Models\ParticipationPathway;
  *     type="object",
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="is_active", type="boolean"),
- *     @OA\Property(property="image", type="string", nullable=true, description="Full URL"),
  *     @OA\Property(property="title", type="string"),
  *     @OA\Property(property="title_id", type="string", nullable=true),
  *     @OA\Property(property="slug", type="string"),
  *     @OA\Property(property="slug_id", type="string", nullable=true),
  *     @OA\Property(property="description", type="string", nullable=true),
  *     @OA\Property(property="description_id", type="string", nullable=true),
- *     @OA\Property(
- *         property="components",
- *         type="array",
- *         description="English page builder blocks: lead_text and text_image",
- *         @OA\Items(type="object")
- *     ),
- *     @OA\Property(
- *         property="components_id",
- *         type="array",
- *         description="Indonesian page builder blocks",
- *         @OA\Items(type="object")
- *     ),
  *     @OA\Property(property="sorted_at", type="integer", nullable=true),
  *     @OA\Property(property="created_at", type="string", format="date-time"),
  *     @OA\Property(property="updated_at", type="string", format="date-time")

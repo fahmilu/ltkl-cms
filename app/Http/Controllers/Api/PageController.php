@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PageResource;
 use App\Models\Page;
+use App\Support\MenuBuilder;
 use Illuminate\Support\Facades\Log;
 
 class PageController extends Controller
 {
+    public function __construct(private readonly MenuBuilder $menus) {}
+
     /**
      * @OA\Get(
      *     path="/api/pages",
@@ -92,63 +95,12 @@ class PageController extends Controller
         return new PageResource($data);
     }
 
+    /**
+     * Kept for the frontends already pointing here; /api/menus is the same
+     * payload and takes an optional group filter.
+     */
     public function navigations()
     {
-        // Get all active menu pages grouped by menu_group
-        $pages = Page::where('menu_is_active', true)
-            ->whereNotNull('menu_group')
-            ->with(['subpages' => function ($query) {
-                $query->where('menu_is_active', true)
-                    ->orderBy('sorted_at', 'asc');
-            }])
-            ->orderBy('sorted_at', 'asc')
-            ->get();
-
-        // Group by menu_group
-        $grouped = $pages->groupBy('menu_group');
-
-        $result = [];
-        foreach ($grouped as $menuGroup => $groupPages) {
-            // Get only top-level pages (no parent) for this group
-            $topLevelPages = $groupPages->where('menu_parent_id', null);
-
-            $navigation = [];
-            foreach ($topLevelPages as $page) {
-                $navItem = [
-                    'is_external' => (bool) $page->menu_is_external,
-                    'title' => $page->title,
-                    'title_id' => $page->title_id ?? '',
-                    'slug' => $page->slug,
-                    'slug_id' => $page->slug_id ?? '',
-                    'url' => $page->menu_url ?? '',
-                    'url_target' => $page->menu_url_target ?? '',
-                    'subs' => [],
-                ];
-
-                // Add subpages
-                foreach ($page->subpages as $subpage) {
-                    $navItem['subs'][] = [
-                        'is_external' => (bool) $subpage->menu_is_external,
-                        'title' => $subpage->title,
-                        'title_id' => $subpage->title_id ?? '',
-                        'slug' => $subpage->slug,
-                        'slug_id' => $subpage->slug_id ?? '',
-                        'url' => $subpage->menu_url ?? '',
-                        'url_target' => $subpage->menu_url_target ?? '',
-                    ];
-                }
-
-                $navigation[] = $navItem;
-            }
-
-            if (!empty($navigation)) {
-                $result[] = [
-                    'group' => $menuGroup,
-                    'navigation' => $navigation,
-                ];
-            }
-        }
-
-        return response()->json($result);
+        return response()->json($this->menus->groups());
     }
 }

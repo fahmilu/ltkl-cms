@@ -18,6 +18,18 @@ return [
         'max-size' => '3 MB',
         'dimensions' => '772x490',
     ],
+    'main-logo' => [
+        'max-size' => '1 MB',
+        'dimensions' => '400x120',
+    ],
+    'footer-logo' => [
+        'max-size' => '1 MB',
+        'dimensions' => '400x120',
+    ],
+    'portrait-image' => [
+        'max-size' => '2 MB',
+        'dimensions' => '600x600',
+    ],
     'partner-logo' => [
         'max-size' => '1 MB',
         'dimensions' => '200x200',

@@ -23,7 +23,7 @@ class ParticipationPathwayResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'title_id';
 
     protected static string|UnitEnum|null $navigationGroup = 'Masters';
 

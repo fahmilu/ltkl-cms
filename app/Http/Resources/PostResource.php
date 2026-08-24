@@ -50,6 +50,9 @@ class PostResource extends JsonResource
             }
         }
 
+        $data['lead'] = $this->convertHeadings($data['lead'] ?? null);
+        $data['lead_id'] = $this->convertHeadings($data['lead_id'] ?? null);
+
         $data['type_data'] = $this->typeData();
 
         // The nested kabupaten is only a reference here, so its own page payload
@@ -233,11 +236,11 @@ class PostResource extends JsonResource
     {
         $components = is_array($this->components) ? $this->components : [];
 
-        if ($components === []) {
+        if ($components === [] && blank($this->lead)) {
             return null;
         }
 
-        $text = '';
+        $text = (string) $this->lead;
         foreach ($components as $component) {
             foreach (['content', 'lead', 'quote'] as $field) {
                 $text .= ' ' . ($component['data'][$field] ?? '');

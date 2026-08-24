@@ -42,6 +42,8 @@ class Post extends Model
         'title_id',
         'slug',
         'slug_id',
+        'lead',
+        'lead_id',
         'content',
         'components',
         'components_id',

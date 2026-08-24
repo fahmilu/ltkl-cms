@@ -6,12 +6,22 @@ use App\Enums\BlockBackgroundColor;
 use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
+use App\Models\Kabupaten;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
 class PageResource extends JsonResource
 {
+    /**
+     * Kabupatens referenced by Text Image blocks, looked up once each. The same
+     * kabupaten is usually referenced by both the English and Indonesian copy
+     * of a block.
+     *
+     * @var array<int, Kabupaten|null>
+     */
+    private array $kabupatenCache = [];
+
     /**
      * Transform the resource into an array.
      *
@@ -62,7 +72,7 @@ class PageResource extends JsonResource
             } else if ($component['type'] == 'lead_text') {
                 $data['components'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
-                $data['components'][$key]['data'] = $this->textImage($component['data'] ?? []);
+                $data['components'][$key]['data'] = $this->textImage($component['data'] ?? [], 'en');
             }
         }
         foreach ($data['components_id'] as $key => $component) {
@@ -94,7 +104,7 @@ class PageResource extends JsonResource
             } else if ($component['type'] == 'lead_text') {
                 $data['components_id'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
-                $data['components_id'][$key]['data'] = $this->textImage($component['data'] ?? []);
+                $data['components_id'][$key]['data'] = $this->textImage($component['data'] ?? [], 'id');
             }
         }
         return $data;
@@ -130,10 +140,15 @@ class PageResource extends JsonResource
      * they read as a plain, uncoloured section with the image on the right.
      * The colour is only published when the block is actually filled.
      *
+     * The subtitle is a kabupaten reference rather than free text. It publishes
+     * as the kabupaten's name in the language of the block, alongside the full
+     * record under `kabupaten` so the frontend can link to it. Blocks saved
+     * before the field became a reference keep the text they already carry.
+     *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function textImage($data): array
+    private function textImage($data, string $locale = 'en'): array
     {
         $data = is_array($data) ? $data : [];
 
@@ -145,7 +160,40 @@ class PageResource extends JsonResource
             : null;
         $data['image_position'] = ImagePosition::fromState($data['image_position'] ?? null)->value;
 
+        $kabupaten = $this->resolveKabupaten($data['kabupaten_id'] ?? null);
+
+        $data['kabupaten_id'] = $kabupaten?->id;
+        $data['kabupaten'] = $kabupaten ? [
+            'id' => $kabupaten->id,
+            'slug' => $kabupaten->slug,
+            'slug_id' => $kabupaten->slug_id,
+            'title' => $kabupaten->title,
+            'title_id' => $kabupaten->title_id,
+            'city' => $kabupaten->city,
+            'province' => $kabupaten->province,
+            'image' => $kabupaten->image ? Storage::disk('public')->url($kabupaten->image) : null,
+        ] : null;
+
+        if ($kabupaten) {
+            $data['subtitle'] = $locale === 'id'
+                ? ($kabupaten->title_id ?: $kabupaten->title)
+                : ($kabupaten->title ?: $kabupaten->title_id);
+        } else {
+            $data['subtitle'] = $data['subtitle'] ?? null;
+        }
+
         return $data;
+    }
+
+    private function resolveKabupaten($id): ?Kabupaten
+    {
+        if (blank($id) || ! is_numeric($id)) {
+            return null;
+        }
+
+        $id = (int) $id;
+
+        return $this->kabupatenCache[$id] ??= Kabupaten::find($id);
     }
 
     /**

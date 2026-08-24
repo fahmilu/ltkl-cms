@@ -7,6 +7,7 @@ use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
 use App\Filament\Helpers\FormHelper;
+use App\Models\Kabupaten;
 use App\Models\Page;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Grid;
@@ -222,11 +223,11 @@ class PageForm
                                 TextInput::make('label')
                                     ->label('Label')
                                     ->placeholder('Input label...')
-                                    ->columnSpan(1),
+                                    ->columnSpanFull(),
                                 TextInput::make('title')
                                     ->label('Title')
                                     ->placeholder('Input title...')
-                                    ->columnSpan(1),
+                                    ->columnSpanFull(),
                                 Select::make('source')
                                     ->label('Collection')
                                     ->options(CollectionComponentSource::class)
@@ -458,7 +459,7 @@ class PageForm
                                     ->native(false)
                                     ->required()
                                     ->columnSpanFull(),
-                                FormHelper::makeRichEditor('lead', 'Lead'),
+                                // FormHelper::makeRichEditor('lead', 'Lead'),
                                 TextInput::make('label')
                                     ->label('Label')
                                     ->placeholder('Input label...')
@@ -467,9 +468,17 @@ class PageForm
                                     ->label('Title')
                                     ->placeholder('Input title...')
                                     ->columnSpanFull(),
-                                TextInput::make('subtitle')
-                                    ->label('Subtitle')
-                                    ->placeholder('Input subtitle...')
+                                Select::make('kabupaten_id')
+                                    ->label('Subtitle (Kabupaten)')
+                                    ->placeholder('Select kabupaten...')
+                                    ->helperText('The subtitle is the selected kabupaten; the API publishes its name in the language of the block.')
+                                    ->options(fn(): array => Kabupaten::orderBy('sorted_at')
+                                        ->pluck('title_id', 'id')
+                                        ->all())
+                                    ->searchable()
+                                    ->preload()
+                                    ->native(false)
+                                    ->nullable()
                                     ->columnSpanFull(),
                                 FormHelper::makeRichEditor('description', 'Description'),
                                 TextInput::make('button_text')

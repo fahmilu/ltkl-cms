@@ -24,7 +24,7 @@ class PageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedDocumentDuplicate;
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'title_id';
 
     protected static string|UnitEnum|null $navigationGroup = 'Contents';
     protected static ?string $navigationLabel = 'Pages & Menus';

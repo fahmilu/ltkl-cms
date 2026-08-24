@@ -28,7 +28,8 @@ class PostsTable
     {
         return $table
             ->columns([
-                TextColumn::make('title')
+                TextColumn::make('title_id')
+                    ->label('Title')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')
@@ -50,7 +51,7 @@ class PostsTable
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()

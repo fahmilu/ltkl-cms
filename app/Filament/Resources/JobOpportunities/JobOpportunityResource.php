@@ -23,7 +23,7 @@ class JobOpportunityResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBriefcase;
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'title_id';
 
     protected static string|UnitEnum|null $navigationGroup = 'Masters';
 

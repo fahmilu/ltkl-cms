@@ -38,7 +38,7 @@ class CollectionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
-    protected static ?string $recordTitleAttribute = 'title';
+    protected static ?string $recordTitleAttribute = 'title_id';
 
     protected static string|UnitEnum|null $navigationGroup = 'Masters';
     protected static ?int $navigationSort = 1;

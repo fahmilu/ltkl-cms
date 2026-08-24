@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Posts\Schemas;
 use App\Enums\ExternalType;
 use App\Enums\PostType;
 use App\Filament\Resources\ComponentBuilders\ComponentBuilderResource;
+use App\Filament\Helpers\FormHelper;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -177,9 +178,11 @@ class PostForm
                     ->afterStateUpdated(function (Set $set, ?string $state) use ($suffix) {
                         $set('slug' . $suffix, Str::slug($state));
                     })
-                    ->columnSpan(1),
+                    ->columnSpanFull(),
                 TextInput::make('slug' . $suffix)
-                    ->placeholder('Input slug...')->required()->unique(column: 'slug' . $suffix)->columnSpan(1),
+                    ->placeholder('Input slug...')->required()->unique(column: 'slug' . $suffix)->columnSpanFull(),
+
+                FormHelper::makeRichEditor('lead' . $suffix, 'Lead'),
 
                 // Type specific fields that need their own translation
                 self::getEventFieldset($suffix),

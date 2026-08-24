@@ -209,6 +209,50 @@ class WebsiteSettings extends AbstractPageSettings
                                             ->nullable()
                                             ->columnSpan(1),
                                     ])->columns(2)->columnSpanFull(),
+                                // Footer call to action
+                                Section::make('Footer CTA')
+                                    ->description('Closing call to action above the footer. The link is shared by both languages.')
+                                    ->schema([
+                                        TextInput::make('footer_cta_title_id')
+                                            ->label('Title (Indonesian)')
+                                            ->placeholder('Input Indonesian title...')
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        TextInput::make('footer_cta_title')
+                                            ->label('Title (English)')
+                                            ->placeholder('Input title...')
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        Textarea::make('footer_cta_description_id')
+                                            ->label('Description (Indonesian)')
+                                            ->placeholder('Input Indonesian description...')
+                                            ->autosize()
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        Textarea::make('footer_cta_description')
+                                            ->label('Description (English)')
+                                            ->placeholder('Input description...')
+                                            ->autosize()
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        TextInput::make('footer_cta_button_text_id')
+                                            ->label('Button text (Indonesian)')
+                                            ->placeholder('Gabung sekarang')
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        TextInput::make('footer_cta_button_text')
+                                            ->label('Button text (English)')
+                                            ->placeholder('Join now')
+                                            ->nullable()
+                                            ->columnSpan(1),
+                                        TextInput::make('footer_cta_button_url')
+                                            ->label('Button URL')
+                                            ->placeholder('https://...')
+                                            ->url()
+                                            ->prefixIcon(Heroicon::OutlinedLink)
+                                            ->nullable()
+                                            ->columnSpanFull(),
+                                    ])->columns(2)->columnSpanFull(),
                                 // Social media
                                 Section::make()
                                     ->schema([

@@ -1,9 +1,11 @@
 <?php
 
 use App\Filament\Pages\WebsiteSettings;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Inerba\DbConfig\DbConfig;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -55,4 +57,41 @@ it('serves the multi language flag as a boolean', function () {
     $this->getJson('/api/settings?group=website&key=multi_language')
         ->assertOk()
         ->assertJsonPath('data.0.settings', true);
+});
+
+it('saves the footer cta from the settings page and serves it per language', function () {
+    $this->actingAs(User::factory()->create());
+
+    Livewire::test(WebsiteSettings::class)
+        ->fillForm([
+            'footer_cta_title' => 'Build the next landscape',
+            'footer_cta_title_id' => 'Bangun lanskap berikutnya',
+            'footer_cta_description' => 'Districts, business and civil society, working on one plan.',
+            'footer_cta_description_id' => 'Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.',
+            'footer_cta_button_text' => 'Join now',
+            'footer_cta_button_text_id' => 'Gabung sekarang',
+            'footer_cta_button_url' => 'https://kabupatenlestari.org/join',
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings = collect($this->getJson('/api/settings?group=website')->assertOk()->json('data'))
+        ->pluck('settings', 'key');
+
+    expect($settings['footer_cta_title'])->toBe('Build the next landscape')
+        ->and($settings['footer_cta_title_id'])->toBe('Bangun lanskap berikutnya')
+        ->and($settings['footer_cta_description'])->toBe('Districts, business and civil society, working on one plan.')
+        ->and($settings['footer_cta_description_id'])->toBe('Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.')
+        ->and($settings['footer_cta_button_text'])->toBe('Join now')
+        ->and($settings['footer_cta_button_text_id'])->toBe('Gabung sekarang')
+        ->and($settings['footer_cta_button_url'])->toBe('https://kabupatenlestari.org/join');
+});
+
+it('rejects a footer cta button url that is not a url', function () {
+    $this->actingAs(User::factory()->create());
+
+    Livewire::test(WebsiteSettings::class)
+        ->fillForm(['footer_cta_button_url' => 'not a url'])
+        ->call('save')
+        ->assertHasFormErrors(['footer_cta_button_url']);
 });

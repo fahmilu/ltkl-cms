@@ -47,6 +47,46 @@ class SettingController extends Controller
             return $query->where('key', request('key'));
         })->get();
 
+        $setting = $setting->concat($this->missingDefaults($setting));
+
         return SettingResource::collection($setting);
+    }
+
+    /**
+     * Settings that have no row yet, as unsaved records carrying their default.
+     *
+     * A key only gets a row once an editor saves the page it lives on, so
+     * without this a fresh environment simply omits it. The filters on the
+     * request are applied here too, so a default never widens the response.
+     *
+     * @param  \Illuminate\Support\Collection<int, Setting>  $existing
+     * @return \Illuminate\Support\Collection<int, Setting>
+     */
+    private function missingDefaults($existing)
+    {
+        $group = request('group');
+        $key = request('key');
+
+        $defaults = collect(config('settings.defaults', []))
+            ->when($group, fn($groups) => $groups->only([$group]));
+
+        $stored = $existing->groupBy('group')->map->pluck('key');
+
+        return $defaults->flatMap(function (array $keys, string $groupName) use ($key, $stored) {
+            return collect($keys)
+                ->when($key, fn($values) => $values->only([$key]))
+                ->reject(fn($value, string $keyName) => $stored->get($groupName, collect())->contains($keyName))
+                ->map(function ($value, string $keyName) use ($groupName): Setting {
+                    // Assigned rather than mass filled: the model guards
+                    // everything, since only the settings package writes rows.
+                    $setting = new Setting;
+                    $setting->group = $groupName;
+                    $setting->key = $keyName;
+                    $setting->settings = json_encode($value);
+
+                    return $setting;
+                })
+                ->values();
+        })->values();
     }
 }

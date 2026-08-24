@@ -59,18 +59,20 @@ it('serves the multi language flag as a boolean', function () {
         ->assertJsonPath('data.0.settings', true);
 });
 
-it('saves the footer cta from the settings page and serves it per language', function () {
+it('saves the footer cta from the settings page as one grouped setting', function () {
     $this->actingAs(User::factory()->create());
 
     Livewire::test(WebsiteSettings::class)
         ->fillForm([
-            'footer_cta_title' => 'Build the next landscape',
-            'footer_cta_title_id' => 'Bangun lanskap berikutnya',
-            'footer_cta_description' => 'Districts, business and civil society, working on one plan.',
-            'footer_cta_description_id' => 'Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.',
-            'footer_cta_button_text' => 'Join now',
-            'footer_cta_button_text_id' => 'Gabung sekarang',
-            'footer_cta_button_url' => 'https://kabupatenlestari.org/join',
+            'footer_cta' => [
+                'title' => 'Build the next landscape',
+                'title_id' => 'Bangun lanskap berikutnya',
+                'description' => 'Districts, business and civil society, working on one plan.',
+                'description_id' => 'Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.',
+                'button_text' => 'Join now',
+                'button_text_id' => 'Gabung sekarang',
+                'button_url' => 'https://kabupatenlestari.org/join',
+            ],
         ])
         ->call('save')
         ->assertHasNoFormErrors();
@@ -78,20 +80,56 @@ it('saves the footer cta from the settings page and serves it per language', fun
     $settings = collect($this->getJson('/api/settings?group=website')->assertOk()->json('data'))
         ->pluck('settings', 'key');
 
-    expect($settings['footer_cta_title'])->toBe('Build the next landscape')
-        ->and($settings['footer_cta_title_id'])->toBe('Bangun lanskap berikutnya')
-        ->and($settings['footer_cta_description'])->toBe('Districts, business and civil society, working on one plan.')
-        ->and($settings['footer_cta_description_id'])->toBe('Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.')
-        ->and($settings['footer_cta_button_text'])->toBe('Join now')
-        ->and($settings['footer_cta_button_text_id'])->toBe('Gabung sekarang')
-        ->and($settings['footer_cta_button_url'])->toBe('https://kabupatenlestari.org/join');
+    expect($settings)->not->toHaveKey('footer_cta_title')
+        ->and($settings['footer_cta'])->toBe([
+            'title' => 'Build the next landscape',
+            'title_id' => 'Bangun lanskap berikutnya',
+            'description' => 'Districts, business and civil society, working on one plan.',
+            'description_id' => 'Kabupaten, dunia usaha dan masyarakat sipil, satu rencana.',
+            'button_text' => 'Join now',
+            'button_text_id' => 'Gabung sekarang',
+            'button_url' => 'https://kabupatenlestari.org/join',
+        ]);
 });
 
 it('rejects a footer cta button url that is not a url', function () {
     $this->actingAs(User::factory()->create());
 
     Livewire::test(WebsiteSettings::class)
-        ->fillForm(['footer_cta_button_url' => 'not a url'])
+        ->fillForm(['footer_cta' => ['button_url' => 'not a url']])
         ->call('save')
-        ->assertHasFormErrors(['footer_cta_button_url']);
+        ->assertHasFormErrors(['footer_cta.button_url']);
+});
+
+it('publishes the footer cta before anyone has saved it', function () {
+    $settings = collect($this->getJson('/api/settings?group=website')->assertOk()->json('data'))
+        ->pluck('settings', 'key');
+
+    expect($settings)->toHaveKey('footer_cta')
+        ->and($settings['footer_cta'])->toBe([
+            'title' => null,
+            'title_id' => null,
+            'description' => null,
+            'description_id' => null,
+            'button_text' => null,
+            'button_text_id' => null,
+            'button_url' => null,
+        ]);
+});
+
+it('fills in the sub keys a stored footer cta does not carry yet', function () {
+    DbConfig::set('website.footer_cta', ['title_id' => 'Siap bergabung?']);
+
+    $this->getJson('/api/settings?group=website&key=footer_cta')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.settings.title_id', 'Siap bergabung?')
+        ->assertJsonPath('data.0.settings.button_url', null)
+        ->assertJsonPath('data.0.settings.description', null);
+});
+
+it('does not leak a default from another group', function () {
+    $this->getJson('/api/settings?group=seo')
+        ->assertOk()
+        ->assertJsonMissing(['key' => 'footer_cta']);
 });

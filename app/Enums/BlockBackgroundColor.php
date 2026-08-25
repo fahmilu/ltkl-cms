@@ -17,6 +17,7 @@ enum BlockBackgroundColor: string implements HasLabel
     case MAGENTA = '#A20056';
     case TEAL = '#007A8A';
     case NAVY = '#2E3171';
+    case WHITE = '#FFFFFF';
 
     public function getLabel(): string
     {
@@ -25,6 +26,7 @@ enum BlockBackgroundColor: string implements HasLabel
             self::MAGENTA => 'Magenta (#A20056)',
             self::TEAL => 'Teal (#007A8A)',
             self::NAVY => 'Navy (#2E3171)',
+            self::WHITE => 'White (#FFFFFF)',
         };
     }
 

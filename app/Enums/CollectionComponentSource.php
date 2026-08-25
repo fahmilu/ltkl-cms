@@ -12,6 +12,7 @@ use Filament\Support\Contracts\HasLabel;
 enum CollectionComponentSource: string implements HasLabel
 {
     case KABUPATEN_MAP = 'kabupaten_map';
+    case KABUPATEN_LIST = 'kabupaten_list';
     case PILLARS = 'pillars';
     case PARTICIPATION_PATHWAYS = 'participation_pathways';
     case JOB_OPPORTUNITIES = 'job_opportunities';
@@ -20,6 +21,7 @@ enum CollectionComponentSource: string implements HasLabel
     {
         return match ($this) {
             self::KABUPATEN_MAP => 'Kabupaten Map',
+            self::KABUPATEN_LIST => 'Kabupaten List',
             self::PILLARS => 'Pillars',
             self::PARTICIPATION_PATHWAYS => 'Participation Pathways',
             self::JOB_OPPORTUNITIES => 'Job Opportunities',
@@ -33,6 +35,7 @@ enum CollectionComponentSource: string implements HasLabel
     {
         return match ($this) {
             self::KABUPATEN_MAP => '/api/kabupatens/map',
+            self::KABUPATEN_LIST => '/api/kabupatens',
             self::PILLARS => '/api/pillars',
             self::PARTICIPATION_PATHWAYS => '/api/participation-pathways',
             self::JOB_OPPORTUNITIES => '/api/job-opportunities',

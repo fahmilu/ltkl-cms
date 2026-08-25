@@ -84,6 +84,8 @@ class PageResource extends JsonResource
                 $data['components'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
                 $data['components'][$key]['data'] = $this->textImage($component['data'] ?? [], 'en');
+            } else if ($component['type'] == 'bergabung_form') {
+                $data['components'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
             }
         }
         foreach ($data['components_id'] as $key => $component) {
@@ -116,6 +118,8 @@ class PageResource extends JsonResource
                 $data['components_id'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
                 $data['components_id'][$key]['data'] = $this->textImage($component['data'] ?? [], 'id');
+            } else if ($component['type'] == 'bergabung_form') {
+                $data['components_id'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
             }
         }
         return $data;
@@ -140,6 +144,35 @@ class PageResource extends JsonResource
         $data['display'] = ($data['source'] ?? null) === CollectionComponentSource::PARTICIPATION_PATHWAYS->value
             ? CollectionDisplay::fromState($data['display'] ?? null)->value
             : null;
+
+        return $data;
+    }
+
+    /**
+     * Normalise a Bergabung Form block, so every block serialises on the same
+     * keys. The job opportunity pointer is a section of its own, published as a
+     * nested object whether or not the editor filled any of it in.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function bergabungForm($data): array
+    {
+        $data = is_array($data) ? $data : [];
+
+        $data['description'] = $this->convertHeadings($data['description'] ?? null);
+        $data['contact_info'] = $this->convertHeadings($data['contact_info'] ?? null);
+
+        $job = $data['job_opportunity'] ?? [];
+        $job = is_array($job) ? $job : [];
+
+        $data['job_opportunity'] = [
+            'label' => $job['label'] ?? null,
+            'title' => $job['title'] ?? null,
+            'description' => $this->convertHeadings($job['description'] ?? null),
+            'button_text' => $job['button_text'] ?? null,
+            'button_url' => $job['button_url'] ?? null,
+        ];
 
         return $data;
     }

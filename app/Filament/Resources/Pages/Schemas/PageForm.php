@@ -258,6 +258,56 @@ class PageForm
                             ->columns(2)
                             ->columnSpanFull(),
 
+                        /* Bergabung Form Block
+                        * Label
+                        * Title
+                        * Description
+                        * Contact Info
+                        * Job Opportunity - Label, Title, Description, Button Text, Button URL
+                        */
+                        Builder\Block::make('bergabung_form')
+                            ->label('Bergabung Form')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                FormHelper::makeRichEditor('contact_info', 'Contact Info')
+                                    ->helperText('Address, email or phone shown beside the form.'),
+                                Section::make('Job Opportunity Section')
+                                    ->description('Pointer to the job openings, shown under the form.')
+                                    ->schema([
+                                        TextInput::make('job_opportunity.label')
+                                            ->label('Label')
+                                            ->placeholder('Input label...')
+                                            ->columnSpan(1),
+                                        TextInput::make('job_opportunity.title')
+                                            ->label('Title')
+                                            ->placeholder('Input title...')
+                                            ->columnSpan(1),
+                                        FormHelper::makeRichEditor('job_opportunity.description', 'Description'),
+                                        TextInput::make('job_opportunity.button_text')
+                                            ->label('Button Label')
+                                            ->placeholder('Input button label...')
+                                            ->columnSpan(1),
+                                        TextInput::make('job_opportunity.button_url')
+                                            ->label('Button Link')
+                                            ->placeholder('Input button link...')
+                                            ->suffixIcon(Heroicon::GlobeAlt)
+                                            ->columnSpan(1),
+                                    ])
+                                    ->columns(2)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+
                         /* Banner Statistic Block
                         * Banner and statistic in one section, without the image.
                         * Label

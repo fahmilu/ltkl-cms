@@ -33,18 +33,25 @@ function makePageWithCollectionBlock(array $data = []): Page
     ]);
 }
 
-it('offers exactly the four collection sources', function () {
+it('offers exactly the five collection sources', function () {
     $labels = array_map(
         fn(CollectionComponentSource $case): string => $case->getLabel(),
         CollectionComponentSource::cases()
     );
 
-    expect($labels)->toBe(['Kabupaten Map', 'Pillars', 'Participation Pathways', 'Job Opportunities']);
+    expect($labels)->toBe([
+        'Kabupaten Map',
+        'Kabupaten List',
+        'Pillars',
+        'Participation Pathways',
+        'Job Opportunities',
+    ]);
 });
 
 it('points each source at a real endpoint', function () {
     expect(CollectionComponentSource::PILLARS->getEndpoint())->toBe('/api/pillars')
         ->and(CollectionComponentSource::KABUPATEN_MAP->getEndpoint())->toBe('/api/kabupatens/map')
+        ->and(CollectionComponentSource::KABUPATEN_LIST->getEndpoint())->toBe('/api/kabupatens')
         // Pathways are their own resource now, not a collection type.
         ->and(CollectionComponentSource::PARTICIPATION_PATHWAYS->getEndpoint())
         ->toBe('/api/participation-pathways')

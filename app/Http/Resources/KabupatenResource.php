@@ -22,7 +22,9 @@ class KabupatenResource extends JsonResource
         // The decimal cast hands back strings, so the landscape figures are
         // converted to real numbers for the JSON payload.
         $data['forest_cover_ha'] = $this->number($this->forest_cover_ha);
-        $data['peatland_ha'] = $this->number($this->peatland_ha);
+        $data['protected_area_ha'] = $this->number($this->protected_area_ha);
+        $data['social_forestry_ha'] = $this->number($this->social_forestry_ha);
+        $data['tora_ha'] = $this->number($this->tora_ha);
         $data['area_km2'] = $this->number($this->area_km2);
         $data['latitude'] = $this->coordinate($this->latitude);
         $data['longitude'] = $this->coordinate($this->longitude);

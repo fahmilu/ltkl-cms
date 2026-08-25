@@ -344,6 +344,15 @@ class KabupatenForm
                     ->placeholder('Riau')
                     ->nullable()
                     ->columnSpanFull(),
+                TextInput::make('area_km2')
+                    ->label('Area')
+                    ->placeholder('8556')
+                    ->suffix('km²')
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable()
+                    ->columnSpanFull(),
+
                 TextInput::make('forest_cover_ha')
                     ->label('Forest Cover')
                     ->placeholder('312000')
@@ -353,8 +362,8 @@ class KabupatenForm
                     ->nullable()
                     ->columnSpanFull(),
 
-                TextInput::make('peatland_ha')
-                    ->label('Peatland')
+                TextInput::make('protected_area_ha')
+                    ->label('Protected Area')
                     ->placeholder('57000')
                     ->suffix('ha')
                     ->numeric()
@@ -362,10 +371,20 @@ class KabupatenForm
                     ->nullable()
                     ->columnSpanFull(),
 
-                TextInput::make('area_km2')
-                    ->label('Area')
-                    ->placeholder('8556')
-                    ->suffix('km²')
+                TextInput::make('social_forestry_ha')
+                    ->label('Social Forestry')
+                    ->placeholder('21000')
+                    ->suffix('ha')
+                    ->numeric()
+                    ->minValue(0)
+                    ->nullable()
+                    ->columnSpanFull(),
+
+                TextInput::make('tora_ha')
+                    ->label('TORA')
+                    ->helperText('Tanah Objek Reforma Agraria.')
+                    ->placeholder('9400')
+                    ->suffix('ha')
                     ->numeric()
                     ->minValue(0)
                     ->nullable()

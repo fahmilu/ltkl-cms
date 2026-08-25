@@ -7,6 +7,7 @@ use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
 use App\Models\Kabupaten;
+use App\Support\ComponentAnchors;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -40,6 +41,16 @@ class PageResource extends JsonResource
             $data['components_id'],
             fn($component) => !empty($component['data']['is_active']) 
         ) : []; */
+        // Anchors for the sections flagged as submenu entries, matching the ones
+        // the menus endpoint lists, so a menu link has something to scroll to.
+        foreach (ComponentAnchors::map($data['components'] ?? []) as $key => $anchor) {
+            $data['components'][$key]['data']['anchor'] = $anchor;
+        }
+
+        foreach (ComponentAnchors::map($data['components_id'] ?? []) as $key => $anchor) {
+            $data['components_id'][$key]['data']['anchor'] = $anchor;
+        }
+
         foreach ($data['components'] as $key => $component) {
             // Images type
             // Every optional key is read defensively: blocks saved before a field

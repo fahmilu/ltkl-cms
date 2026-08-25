@@ -154,3 +154,58 @@ it('skips flagged components that have nothing to label them', function () {
 
     expect($subs)->toBe([]);
 });
+
+it('publishes the same anchor on the page component as the menu entry carries', function () {
+    makeMenuPage([
+        'components' => [
+            ['type' => 'banner', 'data' => ['title' => 'Welcome', 'add_as_submenu' => false]],
+            ['type' => 'paragraph', 'data' => ['title' => 'Our Mission', 'add_as_submenu' => true]],
+            ['type' => 'statistic', 'data' => ['submenu_title' => 'Impact', 'add_as_submenu' => true]],
+        ],
+        'components_id' => [
+            ['type' => 'paragraph', 'data' => ['title' => 'Misi Kami', 'add_as_submenu' => true]],
+        ],
+    ]);
+
+    $page = $this->getJson('/api/page/about')->assertOk()->json('data');
+    $item = $this->getJson('/api/navigations')->assertOk()->json('0.navigation.0');
+
+    expect($page['components'][0]['data'])->not->toHaveKey('anchor')
+        ->and($page['components'][1]['data']['anchor'])->toBe('our-mission')
+        ->and($page['components'][2]['data']['anchor'])->toBe('impact')
+        ->and($page['components_id'][0]['data']['anchor'])->toBe('misi-kami');
+
+    expect(collect($item['subs'])->pluck('anchor')->all())->toBe(['our-mission', 'impact'])
+        ->and(collect($item['subs_id'])->pluck('anchor')->all())->toBe(['misi-kami']);
+});
+
+it('numbers repeated page anchors the way the menu does', function () {
+    makeMenuPage([
+        'components' => [
+            ['type' => 'paragraph', 'data' => ['title' => 'Our Work', 'add_as_submenu' => true]],
+            ['type' => 'text_image', 'data' => ['title' => 'Our Work', 'add_as_submenu' => true]],
+        ],
+        'components_id' => [],
+    ]);
+
+    $page = $this->getJson('/api/page/about')->assertOk()->json('data');
+    $item = $this->getJson('/api/navigations')->assertOk()->json('0.navigation.0');
+
+    expect(collect($page['components'])->pluck('data.anchor')->all())->toBe(['our-work', 'our-work-2'])
+        ->and(collect($item['subs'])->pluck('anchor')->all())->toBe(['our-work', 'our-work-2']);
+});
+
+it('leaves a flagged component without a label unanchored', function () {
+    makeMenuPage([
+        'components' => [
+            ['type' => 'single_image', 'data' => ['add_as_submenu' => true]],
+            ['type' => 'paragraph', 'data' => ['title' => 'Our Mission', 'add_as_submenu' => true]],
+        ],
+        'components_id' => [],
+    ]);
+
+    $page = $this->getJson('/api/page/about')->assertOk()->json('data');
+
+    expect($page['components'][0]['data'])->not->toHaveKey('anchor')
+        ->and($page['components'][1]['data']['anchor'])->toBe('our-mission');
+});

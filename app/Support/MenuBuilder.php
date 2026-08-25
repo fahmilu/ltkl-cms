@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use App\Models\Page;
-use Illuminate\Support\Str;
 
 /**
  * Builds the frontend menus out of the pages.
@@ -150,31 +149,9 @@ class MenuBuilder
         $components = is_array($page->{$column}) ? $page->{$column} : [];
 
         $anchors = [];
-        $taken = [];
 
-        foreach ($components as $component) {
-            $data = is_array($component) ? ($component['data'] ?? []) : [];
-
-            if (empty($data['add_as_submenu'])) {
-                continue;
-            }
-
-            $title = $this->submenuTitle($data);
-
-            // Nothing to label the entry with, so there is nothing to show.
-            if ($title === null) {
-                continue;
-            }
-
-            $anchor = Str::slug($title) ?: 'section';
-
-            // Two sections can carry the same title; keep the anchors unique.
-            if (isset($taken[$anchor])) {
-                $taken[$anchor]++;
-                $anchor .= '-' . $taken[$anchor];
-            } else {
-                $taken[$anchor] = 1;
-            }
+        foreach (ComponentAnchors::map($components) as $key => $anchor) {
+            $title = ComponentAnchors::title($components[$key]['data'] ?? []);
 
             // The list is already the one language's, so both title fields
             // carry its label and the entry stays shaped like a subpage.
@@ -192,30 +169,5 @@ class MenuBuilder
         }
 
         return $anchors;
-    }
-
-    /**
-     * Resolve the label of a submenu entry: the explicit override first, then
-     * whichever title-ish field the block happens to carry.
-     *
-     * @param  array<string, mixed>  $data
-     */
-    private function submenuTitle($data): ?string
-    {
-        if (!is_array($data)) {
-            return null;
-        }
-
-        $keys = ['submenu_title', 'title', 'banner_title', 'label', 'banner_label', 'caption'];
-
-        foreach ($keys as $key) {
-            $value = trim(strip_tags((string) ($data[$key] ?? '')));
-
-            if ($value !== '') {
-                return $value;
-            }
-        }
-
-        return null;
     }
 }

@@ -102,6 +102,14 @@ class KabupatenResource extends JsonResource
                         ? Storage::disk('public')->url($row['image'])
                         : null,
                 ],
+                ImpactType::IMAGE_TEXT => [
+                    'type' => $type->value,
+                    'title' => $row['title'] ?? null,
+                    'description' => $row['description'] ?? null,
+                    'image' => !empty($row['image'])
+                        ? Storage::disk('public')->url($row['image'])
+                        : null,
+                ],
                 ImpactType::TEXT => [
                     'type' => $type->value,
                     'title' => $row['title'] ?? null,

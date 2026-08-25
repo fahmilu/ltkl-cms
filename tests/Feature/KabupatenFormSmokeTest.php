@@ -379,6 +379,21 @@ it('saves a text impact with a title and description', function () {
         ->and($row['description'])->toBe('Villages, mills and the district office share one plan.');
 });
 
+it('needs an image only on an image text impact', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'achievements' => [
+                ['type' => 'image_text', 'title' => 'No picture given'],
+            ],
+        ])
+        ->call('create')
+        ->assertHasFormErrors(['achievements.0.image']);
+});
+
 it('needs a value only on a data impact', function () {
     Livewire::test(CreateKabupaten::class)
         ->fillForm([

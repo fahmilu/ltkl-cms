@@ -300,6 +300,12 @@ it('serves each impact type on its own shape', function () {
                 'title' => 'How the district works',
                 'description' => 'Villages, mills and the district office share one plan.',
             ],
+            [
+                'type' => 'image_text',
+                'title' => 'The nursery at kilometre nine',
+                'description' => 'Seedlings raised by the village cooperative.',
+                'image' => 'kabupatens/nursery.jpg',
+            ],
         ],
     ]);
 
@@ -325,6 +331,24 @@ it('serves each impact type on its own shape', function () {
         'title' => 'How the district works',
         'description' => 'Villages, mills and the district office share one plan.',
     ]);
+
+    expect($rows[3])->toBe([
+        'type' => 'image_text',
+        'title' => 'The nursery at kilometre nine',
+        'description' => 'Seedlings raised by the village cooperative.',
+        'image' => Storage::disk('public')->url('kabupatens/nursery.jpg'),
+    ]);
+});
+
+it('leaves an image text row without a picture as null', function () {
+    makeKabupaten([
+        'achievements' => [
+            ['type' => 'image_text', 'title' => 'The nursery at kilometre nine'],
+        ],
+    ]);
+
+    expect($this->getJson('/api/kabupaten/siak-regency')->assertOk()
+        ->json('data.achievements.0.image'))->toBeNull();
 });
 
 it('reads a row saved before the impact types existed as a data row', function () {

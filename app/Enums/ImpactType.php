@@ -15,6 +15,7 @@ enum ImpactType: string implements HasLabel
     case DATA = 'data';
     case QUOTE = 'quote';
     case TEXT = 'text';
+    case IMAGE_TEXT = 'image_text';
 
     public function getLabel(): string
     {
@@ -22,6 +23,7 @@ enum ImpactType: string implements HasLabel
             self::DATA => 'Data',
             self::QUOTE => 'Quote',
             self::TEXT => 'Text',
+            self::IMAGE_TEXT => 'Image Text',
         };
     }
 

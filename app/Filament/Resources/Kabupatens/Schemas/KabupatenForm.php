@@ -525,6 +525,8 @@ class KabupatenForm
                             ->visible($isType(ImpactType::QUOTE))
                             ->columnSpanFull(),
 
+                        // The portrait beside a quote, and the picture an Image
+                        // Text row is built around.
                         FileUpload::make('image')
                             ->label('Image')
                             // ->placeholder('Input image...')
@@ -535,8 +537,12 @@ class KabupatenForm
                             ->disk('public')->visibility('public')
                             ->directory($module)->preserveFilenames()
                             ->acceptedFileTypes(config('filesystems.image_mimes'))
-                            ->nullable()
-                            ->visible($isType(ImpactType::QUOTE))
+                            ->required($isType(ImpactType::IMAGE_TEXT))
+                            ->visible(fn(Get $get): bool => in_array(
+                                ImpactType::fromState($get('type')),
+                                [ImpactType::QUOTE, ImpactType::IMAGE_TEXT],
+                                true,
+                            ))
                             ->columnSpanFull(),
                     ])
                     ->columns(2)

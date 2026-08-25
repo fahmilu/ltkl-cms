@@ -23,8 +23,7 @@ class KabupatenResource extends JsonResource
         // converted to real numbers for the JSON payload.
         $data['forest_cover_ha'] = $this->number($this->forest_cover_ha);
         $data['protected_area_ha'] = $this->number($this->protected_area_ha);
-        $data['social_forestry_ha'] = $this->number($this->social_forestry_ha);
-        $data['tora_ha'] = $this->number($this->tora_ha);
+        $data['social_forestry_tora_ha'] = $this->number($this->social_forestry_tora_ha);
         $data['area_km2'] = $this->number($this->area_km2);
         $data['latitude'] = $this->coordinate($this->latitude);
         $data['longitude'] = $this->coordinate($this->longitude);

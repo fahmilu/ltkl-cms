@@ -20,8 +20,7 @@ function makeKabupaten(array $overrides = []): Kabupaten
         'content_id' => 'Kabupaten pertama yang menandatangani komitmen lestari.',
         'forest_cover_ha' => 312000,
         'protected_area_ha' => 57000,
-        'social_forestry_ha' => 21000,
-        'tora_ha' => 9400.5,
+        'social_forestry_tora_ha' => 21000.5,
         'area_km2' => 8556.75,
         'city' => 'Siak',
         'province' => 'Riau',
@@ -123,8 +122,7 @@ it('exposes the landscape figures as numbers and the membership fields', functio
 
     expect($data['forest_cover_ha'])->toBe(312000)
         ->and($data['protected_area_ha'])->toBe(57000)
-        ->and($data['social_forestry_ha'])->toBe(21000)
-        ->and($data['tora_ha'])->toBe(9400.5)
+        ->and($data['social_forestry_tora_ha'])->toBe(21000.5)
         ->and($data['area_km2'])->toBe(8556.75)
         ->and($data['city'])->toBe('Siak')
         ->and($data['province'])->toBe('Riau')
@@ -136,8 +134,7 @@ it('returns null landscape figures when they are unset', function () {
     makeKabupaten([
         'forest_cover_ha' => null,
         'protected_area_ha' => null,
-        'social_forestry_ha' => null,
-        'tora_ha' => null,
+        'social_forestry_tora_ha' => null,
         'area_km2' => null,
         'city' => null,
         'province' => null,
@@ -149,8 +146,7 @@ it('returns null landscape figures when they are unset', function () {
 
     expect($data['forest_cover_ha'])->toBeNull()
         ->and($data['protected_area_ha'])->toBeNull()
-        ->and($data['social_forestry_ha'])->toBeNull()
-        ->and($data['tora_ha'])->toBeNull()
+        ->and($data['social_forestry_tora_ha'])->toBeNull()
         ->and($data['area_km2'])->toBeNull()
         ->and($data['province'])->toBeNull()
         ->and($data['is_founding_member'])->toBeFalse()

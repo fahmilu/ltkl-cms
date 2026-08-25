@@ -177,8 +177,7 @@ it('saves the landscape and membership fields', function () {
             'slug_id' => 'kabupaten-siak',
             'forest_cover_ha' => 312000,
             'protected_area_ha' => 57000,
-            'social_forestry_ha' => 21000,
-            'tora_ha' => 9400.5,
+            'social_forestry_tora_ha' => 21000.5,
             'area_km2' => 8556.75,
             'city' => 'Siak',
             'province' => 'Riau',
@@ -192,8 +191,7 @@ it('saves the landscape and membership fields', function () {
 
     expect((float) $kabupaten->forest_cover_ha)->toBe(312000.0)
         ->and((float) $kabupaten->protected_area_ha)->toBe(57000.0)
-        ->and((float) $kabupaten->social_forestry_ha)->toBe(21000.0)
-        ->and((float) $kabupaten->tora_ha)->toBe(9400.5)
+        ->and((float) $kabupaten->social_forestry_tora_ha)->toBe(21000.5)
         ->and((float) $kabupaten->area_km2)->toBe(8556.75)
         ->and($kabupaten->city)->toBe('Siak')
         ->and($kabupaten->province)->toBe('Riau')

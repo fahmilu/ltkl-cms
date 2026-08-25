@@ -371,19 +371,10 @@ class KabupatenForm
                     ->nullable()
                     ->columnSpanFull(),
 
-                TextInput::make('social_forestry_ha')
-                    ->label('Social Forestry')
+                TextInput::make('social_forestry_tora_ha')
+                    ->label('Social Forestry & TORA')
+                    ->helperText('Perhutanan Sosial and Tanah Objek Reforma Agraria, as one figure.')
                     ->placeholder('21000')
-                    ->suffix('ha')
-                    ->numeric()
-                    ->minValue(0)
-                    ->nullable()
-                    ->columnSpanFull(),
-
-                TextInput::make('tora_ha')
-                    ->label('TORA')
-                    ->helperText('Tanah Objek Reforma Agraria.')
-                    ->placeholder('9400')
                     ->suffix('ha')
                     ->numeric()
                     ->minValue(0)

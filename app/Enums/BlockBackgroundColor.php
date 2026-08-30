@@ -13,19 +13,19 @@ use Filament\Support\Contracts\HasLabel;
  */
 enum BlockBackgroundColor: string implements HasLabel
 {
-    case CYAN = '#00A9C1';
+    case CYAN = '#8a3354';
     case MAGENTA = '#A20056';
     case TEAL = '#007A8A';
-    case NAVY = '#2E3171';
+    case NAVY = '#305681';
     case WHITE = '#FFFFFF';
 
     public function getLabel(): string
     {
         return match ($this) {
-            self::CYAN => 'Cyan (#00A9C1)',
+            self::CYAN => 'Cyan (#8a3354)',
             self::MAGENTA => 'Magenta (#A20056)',
             self::TEAL => 'Teal (#007A8A)',
-            self::NAVY => 'Navy (#2E3171)',
+            self::NAVY => 'Navy (#305681)',
             self::WHITE => 'White (#FFFFFF)',
         };
     }

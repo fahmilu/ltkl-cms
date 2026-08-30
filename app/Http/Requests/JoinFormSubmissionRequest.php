@@ -3,8 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class ContactUsRequest extends FormRequest
+class JoinFormSubmissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +25,17 @@ class ContactUsRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
-            'affiliation' => ['nullable', 'string', 'max:255'],
-            'subject' => ['required', 'string', 'max:255'],
+            'organization' => ['nullable', 'string', 'max:255'],
+            'region' => ['required', 'string', 'max:255'],
+            'participation_pathway_id' => [
+                'required',
+                'integer',
+                // Only a pathway the frontend can actually offer, so a hidden or
+                // removed one cannot be submitted by id.
+                Rule::exists('participation_pathways', 'id')
+                    ->where('is_active', true)
+                    ->whereNull('deleted_at'),
+            ],
             'message' => ['required', 'string'],
         ];
     }

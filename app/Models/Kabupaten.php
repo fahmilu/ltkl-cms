@@ -46,6 +46,7 @@ class Kabupaten extends Model
     protected $fillable = [
         'is_active',
         'image',
+        'banner',
         'title',
         'title_id',
         'slug',

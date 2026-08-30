@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Filament\Resources\ContactUs\Tables;
+namespace App\Filament\Resources\JoinFormSubmissions\Tables;
 
+use App\Models\ParticipationPathway;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
-class ContactUsTable
+class JoinFormSubmissionsTable
 {
     public static function configure(Table $table): Table
     {
@@ -19,13 +21,18 @@ class ContactUsTable
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('affiliation')
+                TextColumn::make('organization')
                     ->searchable()
                     ->toggleable(),
-                TextColumn::make('subject')
+                TextColumn::make('region')
+                    ->label('Kabupaten / region')
                     ->searchable()
-                    ->sortable()
-                    ->wrap(),
+                    ->toggleable(),
+                TextColumn::make('participationPathway.title')
+                    ->label('Participation pathway')
+                    ->badge()
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Submitted')
                     ->dateTime()
@@ -36,7 +43,9 @@ class ContactUsTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('participation_pathway_id')
+                    ->label('Participation pathway')
+                    ->options(fn (): array => ParticipationPathway::orderBy('sorted_at')->pluck('title', 'id')->all()),
             ])
             ->recordActions([
                 ViewAction::make(),

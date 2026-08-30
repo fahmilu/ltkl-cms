@@ -408,3 +408,23 @@ it('needs a value only on a data impact', function () {
         ->call('create')
         ->assertHasFormErrors(['achievements.0.value']);
 });
+
+it('keeps the banner and the commodity icon optional', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'commodities' => [
+                ['name' => 'Peat pineapple', 'description' => 'Grown without clearing new land.'],
+            ],
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $kabupaten = Kabupaten::firstWhere('slug', 'siak-regency');
+
+    expect($kabupaten->banner)->toBeNull()
+        ->and(array_values($kabupaten->commodities)[0]['icon'] ?? null)->toBeEmpty();
+});

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ContactUsResource extends JsonResource
+class JoinFormSubmissionResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,8 +18,10 @@ class ContactUsResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'affiliation' => $this->affiliation,
-            'subject' => $this->subject,
+            'organization' => $this->organization,
+            'region' => $this->region,
+            'participation_pathway_id' => $this->participation_pathway_id,
+            'participation_pathway' => new ParticipationPathwayResource($this->whenLoaded('participationPathway')),
             'message' => $this->message,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

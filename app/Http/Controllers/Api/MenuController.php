@@ -26,7 +26,7 @@ class MenuController extends Controller
      *      ),
      *     @OA\Response(
      *         response=200,
-     *         description="Menus listed",
+     *         description="Menus listed. Each submenu entry carries a `resource` of `page`, `anchor` or `kabupaten`; a top-level entry whose slug is one of config('menu.kabupaten_children_slugs') — `anggota` / `members` — also lists the active kabupatens below it.",
      *     )
      * )
      */

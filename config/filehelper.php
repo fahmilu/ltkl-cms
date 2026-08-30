@@ -30,6 +30,10 @@ return [
         'max-size' => '2 MB',
         'dimensions' => '600x600',
     ],
+    'commodity-icon' => [
+        'max-size' => '1 MB',
+        'dimensions' => '128x128',
+    ],
     'partner-logo' => [
         'max-size' => '1 MB',
         'dimensions' => '200x200',

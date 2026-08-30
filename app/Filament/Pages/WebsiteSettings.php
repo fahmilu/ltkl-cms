@@ -320,6 +320,18 @@ class WebsiteSettings extends AbstractPageSettings
                             ->icon(Heroicon::OutlinedEnvelope)
                             ->schema([
                                 TextInput::make('api_key')->placeholder('Input api key...'),
+                            ]),
+                        Tabs\Tab::make('Join Us')
+                            ->icon(Heroicon::OutlinedUserGroup)
+                            ->schema([
+                                TextInput::make('join_us_email')
+                                    ->label('Recipient email')
+                                    ->placeholder('join@example.com')
+                                    ->email()
+                                    ->prefixIcon(Heroicon::OutlinedEnvelope)
+                                    ->helperText('Submissions from the join us form on the frontend are sent to this address.')
+                                    ->nullable()
+                                    ->columnSpanFull(),
                             ])
                     ])
             ])

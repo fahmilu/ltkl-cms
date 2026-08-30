@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Kabupaten;
 use App\Models\Page;
 
 /**
@@ -14,6 +15,14 @@ use App\Models\Page;
  */
 class MenuBuilder
 {
+    /**
+     * The kabupaten entries, built once per request and only when a menu entry
+     * actually asks for them.
+     *
+     * @var array<int, array<string, mixed>>|null
+     */
+    private ?array $kabupatenChildren = null;
+
     /**
      * Every menu group, or just the one named.
      *
@@ -81,6 +90,7 @@ class MenuBuilder
         $subpages = [];
         foreach ($page->subpages as $subpage) {
             $subpages[] = [
+                'resource' => 'page',
                 'is_external' => (bool) $subpage->menu_is_external,
                 'is_anchor' => false,
                 'anchor' => '',
@@ -93,6 +103,8 @@ class MenuBuilder
             ];
         }
 
+        $kabupatens = $this->kabupatenChildren($page);
+
         return [
             'is_external' => (bool) $page->menu_is_external,
             'title' => $page->title,
@@ -101,9 +113,56 @@ class MenuBuilder
             'slug_id' => $page->slug_id ?? '',
             'url' => $page->menu_url ?? '',
             'url_target' => $page->menu_url_target ?? '',
-            'subs' => [...$subpages, ...$this->componentAnchors($page, 'components')],
-            'subs_id' => [...$subpages, ...$this->componentAnchors($page, 'components_id')],
+            'subs' => [...$subpages, ...$this->componentAnchors($page, 'components'), ...$kabupatens],
+            'subs_id' => [...$subpages, ...$this->componentAnchors($page, 'components_id'), ...$kabupatens],
         ];
+    }
+
+    /**
+     * The kabupaten entries below a member menu entry.
+     *
+     * The members page has no subpage per kabupaten — the kabupatens are their
+     * own records — so the menu for that one entry is filled from them instead.
+     * Any other entry gets an empty list and is built as before.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function kabupatenChildren(Page $page): array
+    {
+        if (! $this->wantsKabupatenChildren($page)) {
+            return [];
+        }
+
+        return $this->kabupatenChildren ??= Kabupaten::where('is_active', true)
+            ->orderBy('sorted_at', 'asc')
+            ->get()
+            ->map(fn(Kabupaten $kabupaten): array => [
+                'resource' => 'kabupaten',
+                'is_external' => false,
+                'is_anchor' => false,
+                'anchor' => '',
+                'title' => $kabupaten->title,
+                'title_id' => $kabupaten->title_id ?? '',
+                'slug' => $kabupaten->slug,
+                'slug_id' => $kabupaten->slug_id ?? '',
+                'url' => '',
+                'url_target' => '',
+            ])
+            ->all();
+    }
+
+    /**
+     * Whether this entry is the members one, by either of its slugs.
+     */
+    private function wantsKabupatenChildren(Page $page): bool
+    {
+        $slugs = array_map(
+            fn($slug): string => mb_strtolower(trim((string) $slug)),
+            (array) config('menu.kabupaten_children_slugs', []),
+        );
+
+        return in_array(mb_strtolower((string) $page->slug), $slugs, true)
+            || in_array(mb_strtolower((string) $page->slug_id), $slugs, true);
     }
 
     /**
@@ -156,6 +215,7 @@ class MenuBuilder
             // The list is already the one language's, so both title fields
             // carry its label and the entry stays shaped like a subpage.
             $anchors[] = [
+                'resource' => 'anchor',
                 'is_external' => false,
                 'is_anchor' => true,
                 'anchor' => $anchor,

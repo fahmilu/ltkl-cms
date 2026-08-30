@@ -9,6 +9,20 @@ use App\Models\Setting;
 class SettingController extends Controller
 {
     /**
+     * Settings the admin panel stores but the API never publishes, per group.
+     *
+     * They are only read server side — publishing them would hand the value to
+     * anyone hitting /api/settings.
+     *
+     * @var array<string, array<int, string>>
+     */
+    private const PRIVATE_KEYS = [
+        'website' => [
+            'join_us_email',
+        ],
+    ];
+
+    /**
      * @OA\Get(
      *     path="/api/settings",
      *     tags={"Settings"},
@@ -47,9 +61,20 @@ class SettingController extends Controller
             return $query->where('key', request('key'));
         })->get();
 
-        $setting = $setting->concat($this->missingDefaults($setting));
+        $setting = $setting
+            ->concat($this->missingDefaults($setting))
+            ->reject(fn (Setting $item): bool => $this->isPrivate($item->group, $item->key))
+            ->values();
 
         return SettingResource::collection($setting);
+    }
+
+    /**
+     * Whether a setting is kept out of the API response.
+     */
+    private function isPrivate(?string $group, ?string $key): bool
+    {
+        return in_array($key, self::PRIVATE_KEYS[$group] ?? [], true);
     }
 
     /**

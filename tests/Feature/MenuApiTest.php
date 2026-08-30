@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Kabupaten;
 use App\Models\Page;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -96,4 +97,107 @@ it('leaves the navigations endpoint answering the same payload', function () {
 
     expect($this->getJson('/api/navigations')->assertOk()->json())
         ->toBe($this->getJson('/api/menus')->assertOk()->json());
+});
+
+function makeMenuKabupaten(array $attributes = []): Kabupaten
+{
+    return Kabupaten::create(array_merge([
+        'is_active' => true,
+        'title' => 'Siak Regency',
+        'title_id' => 'Kabupaten Siak',
+        'slug' => 'siak-regency',
+        'slug_id' => 'kabupaten-siak',
+        'sorted_at' => 1,
+    ], $attributes));
+}
+
+it('lists the kabupatens under the members entry', function () {
+    makeMenuKabupaten(['sorted_at' => 2]);
+    makeMenuKabupaten([
+        'title' => 'Sintang Regency',
+        'title_id' => 'Kabupaten Sintang',
+        'slug' => 'sintang-regency',
+        'slug_id' => 'kabupaten-sintang',
+        'sorted_at' => 1,
+    ]);
+
+    makeMenuEntry(['main'], [
+        'title' => 'Members',
+        'title_id' => 'Anggota',
+        'slug' => 'members',
+        'slug_id' => 'anggota',
+    ]);
+
+    $item = $this->getJson('/api/menus?group=main')->assertOk()->json('0.navigation.0');
+
+    // Ordered by sorted_at, like /api/kabupatens.
+    expect(array_column($item['subs'], 'title'))->toBe(['Sintang Regency', 'Siak Regency'])
+        ->and(array_column($item['subs_id'], 'title_id'))->toBe(['Kabupaten Sintang', 'Kabupaten Siak']);
+
+    expect($item['subs'][0])->toMatchArray([
+        'resource' => 'kabupaten',
+        'is_anchor' => false,
+        'is_external' => false,
+        'slug' => 'sintang-regency',
+        'slug_id' => 'kabupaten-sintang',
+    ]);
+});
+
+it('keeps an inactive kabupaten out of the members entry', function () {
+    makeMenuKabupaten(['is_active' => false]);
+
+    makeMenuEntry(['main'], [
+        'title' => 'Members',
+        'title_id' => 'Anggota',
+        'slug' => 'members',
+        'slug_id' => 'anggota',
+    ]);
+
+    expect($this->getJson('/api/menus?group=main')->assertOk()->json('0.navigation.0.subs'))->toBe([]);
+});
+
+it('matches the members entry on the indonesian slug alone', function () {
+    makeMenuKabupaten();
+
+    makeMenuEntry(['main'], [
+        'title' => 'Our Members',
+        'title_id' => 'Anggota Kami',
+        'slug' => 'our-members',
+        'slug_id' => 'anggota',
+    ]);
+
+    expect($this->getJson('/api/menus?group=main')->assertOk()->json('0.navigation.0.subs'))->toHaveCount(1);
+});
+
+it('appends the kabupatens after the subpages and anchors it already has', function () {
+    makeMenuKabupaten();
+
+    $parent = makeMenuEntry(['main'], [
+        'title' => 'Members',
+        'title_id' => 'Anggota',
+        'slug' => 'members',
+        'slug_id' => 'anggota',
+        'components' => [
+            ['type' => 'paragraph', 'data' => ['title' => 'Our Mission', 'add_as_submenu' => true]],
+        ],
+    ]);
+
+    makeMenuEntry(['main'], [
+        'title' => 'Team',
+        'title_id' => 'Tim',
+        'slug' => 'team',
+        'slug_id' => 'tim',
+        'menu_parent_id' => $parent->id,
+    ]);
+
+    $subs = $this->getJson('/api/menus?group=main')->assertOk()->json('0.navigation.0.subs');
+
+    expect(array_column($subs, 'resource'))->toBe(['page', 'anchor', 'kabupaten']);
+});
+
+it('leaves any other entry without kabupatens', function () {
+    makeMenuKabupaten();
+    makeMenuEntry(['main']);
+
+    expect($this->getJson('/api/menus?group=main')->assertOk()->json('0.navigation.0.subs'))->toBe([]);
 });

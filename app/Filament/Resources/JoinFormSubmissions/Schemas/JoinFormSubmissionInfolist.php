@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Resources\ContactUs\Schemas;
+namespace App\Filament\Resources\JoinFormSubmissions\Schemas;
 
-use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
-class ContactUsInfolist
+class JoinFormSubmissionInfolist
 {
     public static function configure(Schema $schema): Schema
     {
@@ -15,23 +15,28 @@ class ContactUsInfolist
                 Section::make('Contact Information')
                     ->schema([
                         TextEntry::make('name')
-                            ->label('Name'),
+                            ->label('Full name'),
                         TextEntry::make('email')
                             ->label('Email')
                             ->copyable()
                             ->copyMessage('Email address copied')
                             ->copyMessageDuration(1500),
-                        TextEntry::make('affiliation')
-                            ->label('Affiliation')
+                        TextEntry::make('organization')
+                            ->label('Organization')
+                            ->placeholder('Not provided'),
+                        TextEntry::make('region')
+                            ->label('Kabupaten / region')
                             ->placeholder('Not provided'),
                     ])
                     ->columns(2),
-                Section::make('Message')
+                Section::make('Participation')
                     ->schema([
-                        TextEntry::make('subject')
-                            ->label('Subject'),
+                        TextEntry::make('participationPathway.title')
+                            ->label('Participation pathway')
+                            ->badge()
+                            ->placeholder('Not provided'),
                         TextEntry::make('message')
-                            ->label('Message')
+                            ->label('Interest')
                             ->columnSpanFull()
                             ->wrap(),
                     ]),

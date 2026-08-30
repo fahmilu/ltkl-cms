@@ -13,7 +13,8 @@ use App\Models\Kabupaten;
  *     type="object",
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="is_active", type="boolean"),
- *     @OA\Property(property="image", type="string", nullable=true, description="Full URL"),
+ *     @OA\Property(property="image", type="string", nullable=true, description="Card image, full URL"),
+ *     @OA\Property(property="banner", type="string", nullable=true, description="Optional page banner, full URL"),
  *     @OA\Property(property="title", type="string", description="English title"),
  *     @OA\Property(property="title_id", type="string", nullable=true, description="Indonesian title"),
  *     @OA\Property(property="slug", type="string"),
@@ -98,6 +99,7 @@ use App\Models\Kabupaten;
  *     schema="KabupatenCommodity",
  *     type="object",
  *     @OA\Property(property="name", type="string", nullable=true, example="Nanas gambut"),
+ *     @OA\Property(property="icon", type="string", nullable=true, description="Optional icon, full URL"),
  *     @OA\Property(property="description", type="string", nullable=true)
  * )
  *

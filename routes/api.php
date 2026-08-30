@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\CollectionController;
-use App\Http\Controllers\Api\ContactUsController;
 use App\Http\Controllers\Api\JobOpportunityController;
+use App\Http\Controllers\Api\JoinFormSubmissionController;
 use App\Http\Controllers\Api\KabupatenController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\PageController;
@@ -44,5 +44,5 @@ Route::get('settings', [SettingController::class, 'index']);
 Route::get('menus', [MenuController::class, 'index']);
 /* Navigation | same payload as /menus, kept for the frontends already on it */
 Route::get('navigations', [PageController::class, 'navigations']);
-/* Contact Us */
-Route::post('contact-us', [ContactUsController::class, 'store']);
+/* Join Form */
+Route::post('join-form-submissions', [JoinFormSubmissionController::class, 'store']);

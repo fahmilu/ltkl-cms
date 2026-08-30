@@ -69,7 +69,19 @@ class KabupatenForm
                                 ->offIcon(Heroicon::XMark)
                                 ->default(true)
                                 ->columnSpanFull(),
-                            
+
+                            FileUpload::make('banner')
+                                ->label('Banner')
+                                ->helperText('Optional. Ideal max size are ' . config('filehelper.banner-image.max-size') . ' and dimensions are ' . config('filehelper.banner-image.dimensions') . ' pixels.')
+                                ->openable()
+                                ->image()
+                                ->maxSize(5240000)->disk('public')->visibility('public')
+                                ->removeUploadedFileButtonPosition('bottom')
+                                ->directory($module)->preserveFilenames()
+                                ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                ->nullable()
+                                ->columnSpanFull(),
+
                             FileUpload::make('image')
                                 ->label('Image')
                                 // ->placeholder('Input image...')
@@ -391,6 +403,7 @@ class KabupatenForm
     private static function getCommodities($suffix): Section
     {
         $isEnglish = $suffix === '';
+        $module = 'kabupatens';
 
         return Section::make('Commodities')
             ->description('Potential commodity cards for this language. Drag to reorder — the card numbering follows this order.')
@@ -411,6 +424,18 @@ class KabupatenForm
                             ->label('Name')
                             ->placeholder($isEnglish ? 'Peat pineapple' : 'Nanas gambut')
                             ->required()
+                            ->columnSpanFull(),
+
+                        FileUpload::make('icon')
+                            ->label('Icon')
+                            ->helperText('Optional. Ideal max size are ' . config('filehelper.commodity-icon.max-size') . ' and dimensions are ' . config('filehelper.commodity-icon.dimensions') . ' pixels.')
+                            ->openable()
+                            ->image()
+                            ->disk('public')->visibility('public')
+                            ->removeUploadedFileButtonPosition('bottom')
+                            ->directory($module)->preserveFilenames()
+                            ->acceptedFileTypes(config('filesystems.image_mimes'))
+                            ->nullable()
                             ->columnSpanFull(),
 
                         Textarea::make('description')

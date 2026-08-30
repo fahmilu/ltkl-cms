@@ -18,6 +18,7 @@ class KabupatenResource extends JsonResource
     {
         $data = parent::toArray($request);
         $data['image'] = $this->image ? Storage::disk('public')->url($this->image) : null;
+        $data['banner'] = $this->banner ? Storage::disk('public')->url($this->banner) : null;
 
         // The decimal cast hands back strings, so the landscape figures are
         // converted to real numbers for the JSON payload.
@@ -77,6 +78,10 @@ class KabupatenResource extends JsonResource
     {
         return $this->rows($rows, fn(array $row): array => [
             'name' => $row['name'] ?? null,
+            // Optional, so a commodity saved without one still serialises.
+            'icon' => !empty($row['icon'])
+                ? Storage::disk('public')->url($row['icon'])
+                : null,
             'description' => $row['description'] ?? null,
         ]);
     }

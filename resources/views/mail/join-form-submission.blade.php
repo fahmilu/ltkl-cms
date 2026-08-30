@@ -1,0 +1,23 @@
+<x-mail::message>
+# New join form submission
+
+**Name:** {{ $submission->name }}
+
+**Email:** {{ $submission->email }}
+
+**Organization:** {{ $submission->organization ?: '—' }}
+
+**Region:** {{ $submission->region ?: '—' }}
+
+**Participation pathway:** {{ $submission->participationPathway?->title ?: '—' }}
+
+**Message:**
+
+{{ $submission->message }}
+
+<x-mail::button :url="$url">
+Open in the admin panel
+</x-mail::button>
+
+Submitted {{ $submission->created_at?->format('d M Y H:i') }}
+</x-mail::message>

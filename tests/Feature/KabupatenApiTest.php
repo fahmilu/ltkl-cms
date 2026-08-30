@@ -95,6 +95,7 @@ it('returns both language lists with their own lengths', function () {
         ->and($data['commodities_id'])->toHaveCount(1)
         ->and($data['commodities_id'][0])->toBe([
             'name' => 'Nanas gambut',
+            'icon' => null,
             'description' => 'Ditanam tanpa membuka lahan baru.',
         ])
         ->and($data['achievements'][0]['value'])->toBe('12k ha')
@@ -374,4 +375,29 @@ it('leaves a quote without an image as null', function () {
 
     expect($this->getJson('/api/kabupaten/siak-regency')->assertOk()
         ->json('data.achievements.0.image'))->toBeNull();
+});
+
+it('serves the banner and the commodity icon as full urls', function () {
+    makeKabupaten([
+        'banner' => 'kabupatens/banner-siak.jpg',
+        'commodities' => [
+            ['name' => 'Peat pineapple', 'icon' => 'kabupatens/pineapple.svg', 'description' => null],
+            // Both stay optional, so a row without an icon serialises as null.
+            ['name' => 'Forest honey', 'description' => null],
+        ],
+    ]);
+
+    $data = $this->getJson('/api/kabupaten/kabupaten-siak')->assertOk()->json('data');
+
+    expect($data['banner'])->toEndWith('/storage/kabupatens/banner-siak.jpg')
+        ->and($data['commodities'][0]['icon'])->toEndWith('/storage/kabupatens/pineapple.svg')
+        ->and($data['commodities'][1]['icon'])->toBeNull();
+});
+
+it('leaves the banner null when none was uploaded', function () {
+    makeKabupaten();
+
+    $this->getJson('/api/kabupaten/kabupaten-siak')
+        ->assertOk()
+        ->assertJsonPath('data.banner', null);
 });

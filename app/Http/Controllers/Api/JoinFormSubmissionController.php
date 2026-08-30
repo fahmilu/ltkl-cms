@@ -25,11 +25,11 @@ class JoinFormSubmissionController extends Controller
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"name", "email", "region", "participation_pathway_id", "message"},
+     *             required={"name", "email", "phone", "participation_pathway_id", "message"},
      *             @OA\Property(property="name", type="string", example="John Doe"),
      *             @OA\Property(property="email", type="string", format="email", example="john@organisasi.org"),
      *             @OA\Property(property="organization", type="string", nullable=true, example="Acme Corp"),
-     *             @OA\Property(property="region", type="string", example="Siak, Riau"),
+     *             @OA\Property(property="phone", type="string", example="+62 812 3456 7890"),
      *             @OA\Property(property="participation_pathway_id", type="integer", example=1),
      *             @OA\Property(property="message", type="string", example="Saya tertarik menjadi donatur.")
      *         )

@@ -26,7 +26,8 @@ class JoinFormSubmissionRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'organization' => ['nullable', 'string', 'max:255'],
-            'region' => ['required', 'string', 'max:255'],
+            // Digits plus the usual separators, so both +62 and 0812 forms pass.
+            'phone' => ['required', 'string', 'max:32', 'regex:/^[0-9+][0-9 ()+-]*$/'],
             'participation_pathway_id' => [
                 'required',
                 'integer',

@@ -24,8 +24,11 @@ class JoinFormSubmissionInfolist
                         TextEntry::make('organization')
                             ->label('Organization')
                             ->placeholder('Not provided'),
-                        TextEntry::make('region')
-                            ->label('Kabupaten / region')
+                        TextEntry::make('phone')
+                            ->label('Phone')
+                            ->copyable()
+                            ->copyMessage('Phone number copied')
+                            ->copyMessageDuration(1500)
                             ->placeholder('Not provided'),
                     ])
                     ->columns(2),

@@ -19,7 +19,7 @@ class JoinFormSubmissionResource extends JsonResource
             'name' => $this->name,
             'email' => $this->email,
             'organization' => $this->organization,
-            'region' => $this->region,
+            'phone' => $this->phone,
             'participation_pathway_id' => $this->participation_pathway_id,
             'participation_pathway' => new ParticipationPathwayResource($this->whenLoaded('participationPathway')),
             'message' => $this->message,

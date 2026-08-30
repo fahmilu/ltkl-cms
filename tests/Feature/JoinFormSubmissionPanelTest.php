@@ -26,7 +26,7 @@ beforeEach(function () {
         'name' => 'Sri Wahyuni',
         'email' => 'sri@organisasi.org',
         'organization' => 'Yayasan Lestari',
-        'region' => 'Siak, Riau',
+        'phone' => '+62 812 3456 7890',
         'participation_pathway_id' => $this->pathway->id,
         'message' => 'Tertarik mendukung sebagai donatur.',
     ]);
@@ -42,7 +42,7 @@ it('shows a submission with every field from the join form', function () {
     Livewire::test(ViewJoinFormSubmission::class, ['record' => $this->submission->getKey()])
         ->assertSee('Sri Wahyuni')
         ->assertSee('Yayasan Lestari')
-        ->assertSee('Siak, Riau')
+        ->assertSee('+62 812 3456 7890')
         ->assertSee('Jadi Donatur')
         ->assertSee('Tertarik mendukung sebagai donatur.');
 });

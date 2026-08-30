@@ -7,7 +7,7 @@
 
 **Organization:** {{ $submission->organization ?: '—' }}
 
-**Region:** {{ $submission->region ?: '—' }}
+**Phone:** {{ $submission->phone ?: '—' }}
 
 **Participation pathway:** {{ $submission->participationPathway?->title ?: '—' }}
 

@@ -24,8 +24,8 @@ class JoinFormSubmissionsTable
                 TextColumn::make('organization')
                     ->searchable()
                     ->toggleable(),
-                TextColumn::make('region')
-                    ->label('Kabupaten / region')
+                TextColumn::make('phone')
+                    ->label('Phone')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('participationPathway.title')

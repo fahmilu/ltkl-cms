@@ -24,7 +24,7 @@ class JoinFormSubmission extends Model
         'name',
         'email',
         'organization',
-        'region',
+        'phone',
         'participation_pathway_id',
         'message',
     ];

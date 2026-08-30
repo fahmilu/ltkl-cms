@@ -27,7 +27,7 @@ function joinFormPayload(array $overrides = []): array
         'name' => 'Sri Wahyuni',
         'email' => 'sri@organisasi.org',
         'organization' => 'Yayasan Lestari',
-        'region' => 'Siak, Riau',
+        'phone' => '+62 812 3456 7890',
         'message' => 'Tertarik mendukung sebagai donatur.',
     ], $overrides);
 }
@@ -43,7 +43,7 @@ it('stores a submission and emails the address set in website settings', functio
     ]))->assertCreated();
 
     expect($response->json('data.participation_pathway.title'))->toBe('Jadi Donatur')
-        ->and($response->json('data.region'))->toBe('Siak, Riau');
+        ->and($response->json('data.phone'))->toBe('+62 812 3456 7890');
 
     $submission = JoinFormSubmission::sole();
 
@@ -74,7 +74,7 @@ it('still stores the submission when no recipient is configured', function () {
 it('rejects a submission without the required fields', function () {
     $this->postJson('/api/join-form-submissions', [])
         ->assertUnprocessable()
-        ->assertJsonValidationErrors(['name', 'email', 'region', 'participation_pathway_id', 'message']);
+        ->assertJsonValidationErrors(['name', 'email', 'phone', 'participation_pathway_id', 'message']);
 });
 
 it('rejects a pathway that is not active', function () {
@@ -96,6 +96,24 @@ it('renders the notification email with the submission details', function () {
 
     expect($body)->toContain('Sri Wahyuni')
         ->toContain('Jadi Donatur')
-        ->toContain('Siak, Riau')
+        ->toContain('+62 812 3456 7890')
         ->toContain('/administrator/join-form-submissions/' . $submission->id);
+});
+
+it('rejects a phone number that is not a phone number', function () {
+    $pathway = makeJoinPathway();
+
+    $this->postJson('/api/join-form-submissions', joinFormPayload([
+        'participation_pathway_id' => $pathway->id,
+        'phone' => 'call me maybe',
+    ]))->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+});
+
+it('accepts a local phone number', function () {
+    $pathway = makeJoinPathway();
+
+    $this->postJson('/api/join-form-submissions', joinFormPayload([
+        'participation_pathway_id' => $pathway->id,
+        'phone' => '0812-3456-7890',
+    ]))->assertCreated()->assertJsonPath('data.phone', '0812-3456-7890');
 });

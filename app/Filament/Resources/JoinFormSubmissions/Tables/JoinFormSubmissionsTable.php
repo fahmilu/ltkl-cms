@@ -29,7 +29,7 @@ class JoinFormSubmissionsTable
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('participationPathway.title')
-                    ->label('Participation pathway')
+                    ->label('Role')
                     ->badge()
                     ->searchable()
                     ->sortable(),
@@ -44,7 +44,7 @@ class JoinFormSubmissionsTable
             ])
             ->filters([
                 SelectFilter::make('participation_pathway_id')
-                    ->label('Participation pathway')
+                    ->label('Role')
                     ->options(fn (): array => ParticipationPathway::orderBy('sorted_at')->pluck('title', 'id')->all()),
             ])
             ->recordActions([

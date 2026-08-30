@@ -1,5 +1,5 @@
 <x-mail::message>
-# New join form submission
+# 
 
 **Name:** {{ $submission->name }}
 

@@ -35,7 +35,7 @@ class JoinFormSubmissionInfolist
                 Section::make('Participation')
                     ->schema([
                         TextEntry::make('participationPathway.title')
-                            ->label('Participation pathway')
+                            ->label('Role')
                             ->badge()
                             ->placeholder('Not provided'),
                         TextEntry::make('message')

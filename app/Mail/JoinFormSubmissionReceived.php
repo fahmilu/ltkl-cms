@@ -19,7 +19,7 @@ class JoinFormSubmissionReceived extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New join form submission from ' . $this->submission->name,
+            subject: 'New Join Form Submission from ' . $this->submission->name,
             replyTo: [$this->submission->email],
         );
     }

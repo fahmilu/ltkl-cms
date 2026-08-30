@@ -9,7 +9,7 @@
 
 **Phone:** {{ $submission->phone ?: '—' }}
 
-**Participation pathway:** {{ $submission->participationPathway?->title ?: '—' }}
+**Role:** {{ $submission->participationPathway?->title ?: '—' }}
 
 **Message:**
 

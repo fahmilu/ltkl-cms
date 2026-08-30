@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Kabupatens\Schemas;
 use App\Enums\ImpactType;
 use App\Models\Kabupaten;
 use App\Models\Pillar;
+use App\Models\Post;
 use App\Services\LocationSearch;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms\Components\FileUpload;
@@ -180,6 +181,7 @@ class KabupatenForm
                     ->columnSpanFull(),
 
                 self::getCommodities($suffix),
+                self::getStory($suffix),
                 self::getAchievements($suffix),
             ])
             ->columns(2)
@@ -451,6 +453,89 @@ class KabupatenForm
                     ->columnSpanFull(),
             ])
             ->columnSpanFull();
+    }
+
+    /**
+     * "Cerita Gerakan": the intro copy of the story block plus the posts picked
+     * as the stories themselves. The copy is per language, and so is the
+     * selection — each language may lead with different stories.
+     */
+    private static function getStory($suffix): Section
+    {
+        $isEnglish = $suffix === '';
+        $module = 'kabupatens';
+
+        return Section::make('Cerita Gerakan')
+            ->description('Optional. Intro of the story block, and the posts shown as its stories.')
+            ->icon(Heroicon::OutlinedBookOpen)
+            ->collapsible()
+            ->schema([
+                TextInput::make('story_label' . $suffix)
+                    ->label('Label')
+                    ->placeholder($isEnglish ? 'Stories' : 'Cerita Gerakan')
+                    ->nullable()
+                    ->columnSpan(1),
+
+                TextInput::make('story_title' . $suffix)
+                    ->label('Title')
+                    ->placeholder($isEnglish
+                        ? 'Stories from the ground'
+                        : 'Cerita dari lapangan')
+                    ->nullable()
+                    ->columnSpan(1),
+
+                Textarea::make('story_description' . $suffix)
+                    ->label('Description')
+                    ->placeholder($isEnglish
+                        ? 'What the movement looks like in this kabupaten, told by the people running it.'
+                        : 'Wajah gerakan di kabupaten ini, diceritakan oleh para pelakunya.')
+                    ->rows(3)
+                    ->nullable()
+                    ->columnSpanFull(),
+
+                FileUpload::make('story_image' . $suffix)
+                    ->label('Image')
+                    ->helperText('Optional. Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
+                    ->openable()
+                    ->image()
+                    ->maxSize(5240000)->disk('public')->visibility('public')
+                    ->removeUploadedFileButtonPosition('bottom')
+                    ->directory($module)->preserveFilenames()
+                    ->acceptedFileTypes(config('filesystems.image_mimes'))
+                    ->nullable()
+                    ->columnSpanFull(),
+
+                Select::make('story_posts' . $suffix)
+                    ->label('Stories')
+                    ->helperText('Pick the posts to show here. Drag to reorder — the frontend keeps this order.')
+                    ->options(fn(): array => self::postOptions($suffix))
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->nullable()
+                    ->columnSpanFull(),
+            ])
+            ->columns(2)
+            ->columnSpanFull();
+    }
+
+    /**
+     * Published posts, labelled in the language of the tab they are picked in.
+     *
+     * @return array<int, string>
+     */
+    private static function postOptions($suffix): array
+    {
+        return Post::where('is_active', true)
+            ->orderByDesc('published_at')
+            ->get()
+            ->mapWithKeys(fn(Post $post): array => [
+                $post->id => ($suffix === '_id'
+                    ? ($post->title_id ?: $post->title)
+                    : ($post->title ?: $post->title_id)) ?? '',
+            ])
+            ->all();
     }
 
     /**

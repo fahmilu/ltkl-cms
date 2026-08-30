@@ -4,6 +4,7 @@ use App\Filament\Resources\Kabupatens\Pages\CreateKabupaten;
 use App\Filament\Resources\Kabupatens\Pages\EditKabupaten;
 use App\Models\Kabupaten;
 use App\Models\Pillar;
+use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -427,4 +428,41 @@ it('keeps the banner and the commodity icon optional', function () {
 
     expect($kabupaten->banner)->toBeNull()
         ->and(array_values($kabupaten->commodities)[0]['icon'] ?? null)->toBeEmpty();
+});
+
+it('saves the story block separately for each language', function () {
+    $post = Post::create([
+        'is_active' => true,
+        'type' => 'article',
+        'title' => 'Peat restored in Siak',
+        'title_id' => 'Gambut pulih di Siak',
+        'slug' => 'peat-restored-in-siak',
+        'slug_id' => 'gambut-pulih-di-siak',
+        'published_at' => now(),
+    ]);
+
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'story_label' => 'Stories',
+            'story_title' => 'Stories from the ground',
+            'story_description' => 'Told by the people running it.',
+            'story_posts' => [$post->id],
+            'story_label_id' => 'Cerita Gerakan',
+            'story_title_id' => 'Cerita dari lapangan',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $kabupaten = Kabupaten::firstWhere('slug', 'siak-regency');
+
+    expect($kabupaten->story_label)->toBe('Stories')
+        ->and($kabupaten->story_title_id)->toBe('Cerita dari lapangan')
+        ->and($kabupaten->story_posts)->toBe([$post->id])
+        // Nothing here is required, so the other language stays empty.
+        ->and($kabupaten->story_description_id)->toBeNull()
+        ->and($kabupaten->story_posts_id)->toBeEmpty();
 });

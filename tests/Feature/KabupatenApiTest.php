@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Kabupaten;
+use App\Models\Post;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 
@@ -400,4 +401,93 @@ it('leaves the banner null when none was uploaded', function () {
     $this->getJson('/api/kabupaten/kabupaten-siak')
         ->assertOk()
         ->assertJsonPath('data.banner', null);
+});
+
+function makeStoryPost(array $overrides = []): Post
+{
+    return Post::create(array_merge([
+        'is_active' => true,
+        'type' => 'article',
+        'title' => 'Peat restored in Siak',
+        'title_id' => 'Gambut pulih di Siak',
+        'slug' => 'peat-restored-in-siak',
+        'slug_id' => 'gambut-pulih-di-siak',
+        'lead' => 'Village by village.',
+        'lead_id' => 'Desa demi desa.',
+        'image' => 'posts/peat.jpg',
+        'published_at' => now(),
+    ], $overrides));
+}
+
+it('serves the story block per language, in the picked order', function () {
+    $first = makeStoryPost();
+    $second = makeStoryPost([
+        'title' => 'Honey from a standing forest',
+        'title_id' => 'Madu dari hutan yang berdiri',
+        'slug' => 'honey-from-a-standing-forest',
+        'slug_id' => 'madu-dari-hutan-yang-berdiri',
+        'image' => null,
+    ]);
+
+    makeKabupaten([
+        'story_label' => 'Stories',
+        'story_title' => 'Stories from the ground',
+        'story_description' => 'Told by the people running it.',
+        'story_image' => 'kabupatens/story-siak.jpg',
+        'story_posts' => [$second->id, $first->id],
+        'story_label_id' => 'Cerita Gerakan',
+        'story_title_id' => 'Cerita dari lapangan',
+        'story_description_id' => 'Diceritakan oleh para pelakunya.',
+        'story_posts_id' => [$first->id],
+    ]);
+
+    $data = $this->getJson('/api/kabupaten/kabupaten-siak')->assertOk()->json('data');
+
+    expect($data['story']['label'])->toBe('Stories')
+        ->and($data['story']['title'])->toBe('Stories from the ground')
+        ->and($data['story']['description'])->toBe('Told by the people running it.')
+        ->and($data['story']['image'])->toEndWith('/storage/kabupatens/story-siak.jpg')
+        // The order set in the CMS, not the order the posts were created in.
+        ->and(array_column($data['story']['posts'], 'slug'))
+        ->toBe(['honey-from-a-standing-forest', 'peat-restored-in-siak'])
+        ->and($data['story']['posts'][1]['image'])->toEndWith('/storage/posts/peat.jpg')
+        ->and($data['story']['posts'][0]['image'])->toBeNull();
+
+    // Each language keeps its own selection and its own copy.
+    expect($data['story_id']['label'])->toBe('Cerita Gerakan')
+        ->and($data['story_id']['image'])->toBeNull()
+        ->and(array_column($data['story_id']['posts'], 'slug_id'))->toBe(['gambut-pulih-di-siak']);
+
+    // The flat columns stay out of the payload.
+    expect($data)->not->toHaveKey('story_posts')
+        ->and($data)->not->toHaveKey('story_label');
+});
+
+it('leaves an unpublished story post out of the block', function () {
+    $published = makeStoryPost();
+    $draft = makeStoryPost([
+        'is_active' => false,
+        'slug' => 'draft-story',
+        'slug_id' => 'cerita-draf',
+    ]);
+
+    makeKabupaten(['story_posts' => [$draft->id, $published->id]]);
+
+    $story = $this->getJson('/api/kabupaten/kabupaten-siak')->assertOk()->json('data.story');
+
+    expect(array_column($story['posts'], 'slug'))->toBe(['peat-restored-in-siak']);
+});
+
+it('returns an empty story block when nothing was filled in', function () {
+    makeKabupaten();
+
+    $story = $this->getJson('/api/kabupaten/kabupaten-siak')->assertOk()->json('data.story');
+
+    expect($story)->toBe([
+        'label' => null,
+        'title' => null,
+        'description' => null,
+        'image' => null,
+        'posts' => [],
+    ]);
 });

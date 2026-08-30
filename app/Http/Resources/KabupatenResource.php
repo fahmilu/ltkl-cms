@@ -3,8 +3,10 @@
 namespace App\Http\Resources;
 
 use App\Enums\ImpactType;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class KabupatenResource extends JsonResource
@@ -49,7 +51,105 @@ class KabupatenResource extends JsonResource
         $data['achievements'] = $this->achievements($this->achievements);
         $data['achievements_id'] = $this->achievements($this->achievements_id);
 
-        return $data;
+        // The story block is served as one object per language, so the flat
+        // story_* columns are dropped from the payload.
+        $posts = $this->storyPosts();
+
+        $data['story'] = $this->story('', $posts);
+        $data['story_id'] = $this->story('_id', $posts);
+
+        return Arr::except($data, [
+            'story_label',
+            'story_label_id',
+            'story_title',
+            'story_title_id',
+            'story_description',
+            'story_description_id',
+            'story_image',
+            'story_image_id',
+            'story_posts',
+            'story_posts_id',
+        ]);
+    }
+
+    /**
+     * The "Cerita Gerakan" block of one language.
+     *
+     * @param  \Illuminate\Support\Collection<int, Post>  $posts
+     * @return array<string, mixed>
+     */
+    private function story(string $suffix, $posts): array
+    {
+        $image = $this->{'story_image' . $suffix};
+
+        return [
+            'label' => $this->{'story_label' . $suffix} ?: null,
+            'title' => $this->{'story_title' . $suffix} ?: null,
+            'description' => $this->{'story_description' . $suffix} ?: null,
+            'image' => $image ? Storage::disk('public')->url($image) : null,
+            // The picked order is the editor's, so it is kept rather than the
+            // order the posts come back from the database in.
+            'posts' => array_values(array_filter(array_map(
+                fn($id): ?array => ($post = $posts->get((int) $id)) ? $this->storyPost($post) : null,
+                $this->storyPostIds($suffix),
+            ))),
+        ];
+    }
+
+    /**
+     * Both languages are resolved in one query, so a list of kabupatens does not
+     * fire a lookup per language per record.
+     *
+     * @return \Illuminate\Support\Collection<int, Post>
+     */
+    private function storyPosts()
+    {
+        $ids = array_unique([...$this->storyPostIds(''), ...$this->storyPostIds('_id')]);
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        // Only published posts, so unpublishing one takes it off the kabupaten
+        // page without anyone having to edit the kabupaten.
+        return Post::where('is_active', true)
+            ->whereIn('id', $ids)
+            ->get()
+            ->keyBy('id');
+    }
+
+    /**
+     * @return array<int, int>
+     */
+    private function storyPostIds(string $suffix): array
+    {
+        $ids = $this->{'story_posts' . $suffix};
+
+        if (!is_array($ids)) {
+            return [];
+        }
+
+        return array_values(array_map('intval', array_filter($ids, 'is_numeric')));
+    }
+
+    /**
+     * A slim post reference. The full post lives at /api/post/{slug}.
+     *
+     * @return array<string, mixed>
+     */
+    private function storyPost(Post $post): array
+    {
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'title_id' => $post->title_id,
+            'slug' => $post->slug,
+            'slug_id' => $post->slug_id,
+            'lead' => $post->lead,
+            'lead_id' => $post->lead_id,
+            'image' => $post->image ? Storage::disk('public')->url($post->image) : null,
+            'published_at' => $post->published_at,
+        ];
     }
 
     /**

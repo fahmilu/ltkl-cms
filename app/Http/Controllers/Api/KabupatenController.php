@@ -27,6 +27,8 @@ use App\Models\Kabupaten;
  *     @OA\Property(property="protected_area_ha", type="number", nullable=true, description="Kawasan Lindung, in hectares", example=57000),
  *     @OA\Property(property="social_forestry_tora_ha", type="number", nullable=true, description="Perhutanan Sosial & TORA, in hectares", example=21000),
  *     @OA\Property(property="area_km2", type="number", nullable=true, description="Luas Wilayah, in square kilometres", example=8556),
+ *     @OA\Property(property="story", ref="#/components/schemas/KabupatenStory", description="Cerita Gerakan block, English"),
+ *     @OA\Property(property="story_id", ref="#/components/schemas/KabupatenStory", description="Cerita Gerakan block, Indonesian"),
  *     @OA\Property(property="city", type="string", nullable=true, description="Kota", example="Siak"),
  *     @OA\Property(property="province", type="string", nullable=true, description="Provinsi", example="Riau"),
  *     @OA\Property(property="latitude", type="number", format="float", nullable=true, example=0.8118),
@@ -101,6 +103,37 @@ use App\Models\Kabupaten;
  *     @OA\Property(property="name", type="string", nullable=true, example="Nanas gambut"),
  *     @OA\Property(property="icon", type="string", nullable=true, description="Optional icon, full URL"),
  *     @OA\Property(property="description", type="string", nullable=true)
+ * )
+ *
+ * @OA\Schema(
+ *     schema="KabupatenStory",
+ *     type="object",
+ *     description="Cerita Gerakan. Every field is optional; posts is empty when none were picked or none of them are published.",
+ *     @OA\Property(property="label", type="string", nullable=true, example="Cerita Gerakan"),
+ *     @OA\Property(property="title", type="string", nullable=true, example="Cerita dari lapangan"),
+ *     @OA\Property(property="description", type="string", nullable=true),
+ *     @OA\Property(property="image", type="string", nullable=true, description="Full URL"),
+ *     @OA\Property(
+ *         property="posts",
+ *         type="array",
+ *         description="Picked posts, in the order set in the CMS",
+ *         @OA\Items(ref="#/components/schemas/KabupatenStoryPost")
+ *     )
+ * )
+ *
+ * @OA\Schema(
+ *     schema="KabupatenStoryPost",
+ *     type="object",
+ *     description="Slim post reference. The full post lives at /api/post/{slug}.",
+ *     @OA\Property(property="id", type="integer"),
+ *     @OA\Property(property="title", type="string", nullable=true),
+ *     @OA\Property(property="title_id", type="string", nullable=true),
+ *     @OA\Property(property="slug", type="string", nullable=true),
+ *     @OA\Property(property="slug_id", type="string", nullable=true),
+ *     @OA\Property(property="lead", type="string", nullable=true),
+ *     @OA\Property(property="lead_id", type="string", nullable=true),
+ *     @OA\Property(property="image", type="string", nullable=true, description="Full URL"),
+ *     @OA\Property(property="published_at", type="string", format="date-time", nullable=true)
  * )
  *
  * @OA\Schema(

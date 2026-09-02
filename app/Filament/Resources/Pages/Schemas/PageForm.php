@@ -705,21 +705,14 @@ class PageForm
                 FormHelper::makeRichEditor('description', 'Description'),
                 Repeater::make('items')
                     ->label('Items')
-                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                    ->itemLabel(fn(array $state): ?string => isset($state['title']) ? strip_tags($state['title']) : null)
                     ->reorderableWithDragAndDrop()
                     ->collapsible()
                     ->collapsed()
                     ->cloneable()
                     ->schema([
-                        TextInput::make('title')
-                            ->label('Title')
-                            ->placeholder('Input title...')
-                            ->columnSpanFull(),
-                        Textarea::make('description')
-                            ->label('Description')
-                            ->placeholder('Input description...')
-                            ->rows(3)
-                            ->columnSpanFull(),
+                        FormHelper::makeRichEditor('title', 'Title'),
+                        FormHelper::makeRichEditor('description', 'Description'),
                         ...($withItemImage ? [
                             FileUpload::make('image')
                                 ->label('Image')

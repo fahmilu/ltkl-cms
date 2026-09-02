@@ -257,8 +257,8 @@ class PageResource extends JsonResource
             $item = is_array($item) ? $item : [];
 
             $row = [
-                'title' => $item['title'] ?? null,
-                'description' => $item['description'] ?? null,
+                'title' => $this->convertHeadings($item['title'] ?? null),
+                'description' => $this->convertHeadings($item['description'] ?? null),
             ];
 
             if ($withImage) {

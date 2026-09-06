@@ -614,7 +614,7 @@ class PageForm
                         * Items (Repeater) - Title, Description, and an Image on The Vision
                         */
                         self::getListBlock('the_values', 'The Values'),
-                        self::getListBlock('the_problems', 'The Problems'),
+                        self::getListBlock('the_problems', 'The Problems', withItemImage: true),
                         self::getListBlock('the_vision', 'The Vision', withItemImage: true),
 
                         /* Journey Block

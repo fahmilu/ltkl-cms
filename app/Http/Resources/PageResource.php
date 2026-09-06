@@ -72,10 +72,10 @@ class PageResource extends JsonResource
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision'], true)) {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                // Only The Vision illustrates its items.
+                // The Vision and The Problems illustrate their items.
                 $data['components'][$key]['data']['items'] = $this->listItems(
                     $component['data']['items'] ?? [],
-                    withImage: $component['type'] === 'the_vision',
+                    withImage: in_array($component['type'], ['the_vision', 'the_problems'], true),
                 );
             } else if ($component['type'] == 'journey') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
@@ -106,10 +106,10 @@ class PageResource extends JsonResource
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision'], true)) {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                // Only The Vision illustrates its items.
+                // The Vision and The Problems illustrate their items.
                 $data['components_id'][$key]['data']['items'] = $this->listItems(
                     $component['data']['items'] ?? [],
-                    withImage: $component['type'] === 'the_vision',
+                    withImage: in_array($component['type'], ['the_vision', 'the_problems'], true),
                 );
             } else if ($component['type'] == 'journey') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
@@ -242,7 +242,7 @@ class PageResource extends JsonResource
 
     /**
      * Normalise the items of The Values, The Problems and The Vision, so every
-     * row serialises on the same keys. The image is only part of The Vision.
+     * row serialises on the same keys. The image is part of The Vision and The Problems.
      *
      * @param  array<int, array<string, mixed>>  $items
      * @return array<int, array<string, mixed>>

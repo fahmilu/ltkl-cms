@@ -264,6 +264,7 @@ class PageForm
                         * Description
                         * Contact Info
                         * Job Opportunity - Label, Title, Description, Button Text, Button URL
+                        * Newsletter - Label, Title, Description, Button Text, Button URL
                         */
                         Builder\Block::make('bergabung_form')
                             ->label('Bergabung Form')
@@ -297,6 +298,30 @@ class PageForm
                                             ->placeholder('Input button label...')
                                             ->columnSpan(1),
                                         TextInput::make('job_opportunity.button_url')
+                                            ->label('Button Link')
+                                            ->placeholder('Input button link...')
+                                            ->suffixIcon(Heroicon::GlobeAlt)
+                                            ->columnSpan(1),
+                                    ])
+                                    ->columns(2)
+                                    ->columnSpanFull(),
+                                Section::make('Newsletter Section')
+                                    ->description('Pointer to the newsletter signup, shown under the form.')
+                                    ->schema([
+                                        TextInput::make('newsletter.label')
+                                            ->label('Label')
+                                            ->placeholder('Input label...')
+                                            ->columnSpan(1),
+                                        TextInput::make('newsletter.title')
+                                            ->label('Title')
+                                            ->placeholder('Input title...')
+                                            ->columnSpan(1),
+                                        FormHelper::makeRichEditor('newsletter.description', 'Description'),
+                                        TextInput::make('newsletter.button_text')
+                                            ->label('Button Label')
+                                            ->placeholder('Input button label...')
+                                            ->columnSpan(1),
+                                        TextInput::make('newsletter.button_url')
                                             ->label('Button Link')
                                             ->placeholder('Input button link...')
                                             ->suffixIcon(Heroicon::GlobeAlt)

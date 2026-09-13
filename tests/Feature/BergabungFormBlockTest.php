@@ -24,6 +24,13 @@ function makePageWithBergabungBlock(array $data = []): Page
                 'button_text' => 'Lihat lowongan',
                 'button_url' => 'https://kabupatenlestari.org/karir',
             ],
+            'newsletter' => [
+                'label' => 'Newsletter',
+                'title' => 'Ikuti kabar terbaru',
+                'description' => '<h2>Berlangganan surat kabar</h2>',
+                'button_text' => 'Berlangganan',
+                'button_url' => 'https://kabupatenlestari.org/newsletter',
+            ],
         ], $data),
     ];
 
@@ -55,16 +62,30 @@ it('publishes the bergabung form block with its job opportunity section', functi
             'description' => '<h3>Bergabung dengan tim</h3>',
             'button_text' => 'Lihat lowongan',
             'button_url' => 'https://kabupatenlestari.org/karir',
+        ])
+        ->and($block['data']['newsletter'])->toBe([
+            'label' => 'Newsletter',
+            'title' => 'Ikuti kabar terbaru',
+            'description' => '<h3>Berlangganan surat kabar</h3>',
+            'button_text' => 'Berlangganan',
+            'button_url' => 'https://kabupatenlestari.org/newsletter',
         ]);
 });
 
-it('keeps the job opportunity keys on a block that carries none of them', function () {
-    makePageWithBergabungBlock(['job_opportunity' => null, 'contact_info' => null]);
+it('keeps the job opportunity and newsletter keys on a block that carries none of them', function () {
+    makePageWithBergabungBlock(['job_opportunity' => null, 'newsletter' => null, 'contact_info' => null]);
 
     $block = $this->getJson('/api/page/join')->assertOk()->json('data.components.0');
 
     expect($block['data']['contact_info'])->toBeNull()
         ->and($block['data']['job_opportunity'])->toBe([
+            'label' => null,
+            'title' => null,
+            'description' => null,
+            'button_text' => null,
+            'button_url' => null,
+        ])
+        ->and($block['data']['newsletter'])->toBe([
             'label' => null,
             'title' => null,
             'description' => null,
@@ -94,6 +115,11 @@ it('saves the block from the page builder, job section nested', function () {
                             'button_text' => 'Lihat lowongan',
                             'button_url' => 'https://kabupatenlestari.org/karir',
                         ],
+                        'newsletter' => [
+                            'label' => 'Newsletter',
+                            'button_text' => 'Berlangganan',
+                            'button_url' => 'https://kabupatenlestari.org/newsletter',
+                        ],
                     ],
                 ],
             ],
@@ -106,7 +132,9 @@ it('saves the block from the page builder, job section nested', function () {
     expect($block['type'])->toBe('bergabung_form')
         ->and($block['data']['label'])->toBe('Bergabung')
         ->and($block['data']['job_opportunity']['label'])->toBe('Karir')
-        ->and($block['data']['job_opportunity']['button_url'])->toBe('https://kabupatenlestari.org/karir');
+        ->and($block['data']['job_opportunity']['button_url'])->toBe('https://kabupatenlestari.org/karir')
+        ->and($block['data']['newsletter']['label'])->toBe('Newsletter')
+        ->and($block['data']['newsletter']['button_url'])->toBe('https://kabupatenlestari.org/newsletter');
 });
 
 it('anchors the block when it is flagged as a submenu entry', function () {

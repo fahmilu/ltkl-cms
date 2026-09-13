@@ -150,8 +150,9 @@ class PageResource extends JsonResource
 
     /**
      * Normalise a Bergabung Form block, so every block serialises on the same
-     * keys. The job opportunity pointer is a section of its own, published as a
-     * nested object whether or not the editor filled any of it in.
+     * keys. The job opportunity and newsletter pointers are sections of their
+     * own, each published as a nested object whether or not the editor filled
+     * any of it in.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -162,19 +163,30 @@ class PageResource extends JsonResource
 
         $data['description'] = $this->convertHeadings($data['description'] ?? null);
         $data['contact_info'] = $this->convertHeadings($data['contact_info'] ?? null);
-
-        $job = $data['job_opportunity'] ?? [];
-        $job = is_array($job) ? $job : [];
-
-        $data['job_opportunity'] = [
-            'label' => $job['label'] ?? null,
-            'title' => $job['title'] ?? null,
-            'description' => $this->convertHeadings($job['description'] ?? null),
-            'button_text' => $job['button_text'] ?? null,
-            'button_url' => $job['button_url'] ?? null,
-        ];
+        $data['job_opportunity'] = $this->bergabungFormSection($data['job_opportunity'] ?? []);
+        $data['newsletter'] = $this->bergabungFormSection($data['newsletter'] ?? []);
 
         return $data;
+    }
+
+    /**
+     * Normalise a Bergabung Form pointer section (job opportunity, newsletter),
+     * so every block serialises on the same keys.
+     *
+     * @param  mixed  $section
+     * @return array<string, mixed>
+     */
+    private function bergabungFormSection($section): array
+    {
+        $section = is_array($section) ? $section : [];
+
+        return [
+            'label' => $section['label'] ?? null,
+            'title' => $section['title'] ?? null,
+            'description' => $this->convertHeadings($section['description'] ?? null),
+            'button_text' => $section['button_text'] ?? null,
+            'button_url' => $section['button_url'] ?? null,
+        ];
     }
 
     /**

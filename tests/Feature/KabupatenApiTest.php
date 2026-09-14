@@ -28,6 +28,7 @@ function makeKabupaten(array $overrides = []): Kabupaten
         'latitude' => 0.8118,
         'longitude' => 101.8,
         'is_founding_member' => true,
+        'dashboard_url' => 'https://dashboard.kabupatenlestari.org/siak',
         'joined_year' => 2017,
         'sorted_at' => 1,
         'commodities' => [
@@ -129,6 +130,7 @@ it('exposes the landscape figures as numbers and the membership fields', functio
         ->and($data['city'])->toBe('Siak')
         ->and($data['province'])->toBe('Riau')
         ->and($data['is_founding_member'])->toBeTrue()
+        ->and($data['dashboard_url'])->toBe('https://dashboard.kabupatenlestari.org/siak')
         ->and($data['joined_year'])->toBe(2017);
 });
 
@@ -234,6 +236,7 @@ it('returns a slim map payload for pinned kabupatens', function () {
             'city' => 'Siak',
             'province' => 'Riau',
             'is_founding_member' => true,
+            'dashboard_url' => 'https://dashboard.kabupatenlestari.org/siak',
             'latitude' => 0.8118,
             'longitude' => 101.8,
         ]);

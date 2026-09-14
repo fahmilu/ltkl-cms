@@ -28,6 +28,7 @@ class KabupatenMapResource extends JsonResource
             'city' => $this->city,
             'province' => $this->province,
             'is_founding_member' => (bool) $this->is_founding_member,
+            'dashboard_url' => $this->dashboard_url,
             'latitude' => (float) $this->latitude,
             'longitude' => (float) $this->longitude,
         ];

@@ -66,6 +66,7 @@ class Kabupaten extends Model
         'latitude',
         'longitude',
         'is_founding_member',
+        'dashboard_url',
         'joined_year',
         'commodities',
         'commodities_id',

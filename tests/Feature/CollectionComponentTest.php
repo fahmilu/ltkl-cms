@@ -33,7 +33,7 @@ function makePageWithCollectionBlock(array $data = []): Page
     ]);
 }
 
-it('offers exactly the five collection sources', function () {
+it('offers exactly the six collection sources', function () {
     $labels = array_map(
         fn(CollectionComponentSource $case): string => $case->getLabel(),
         CollectionComponentSource::cases()
@@ -45,6 +45,7 @@ it('offers exactly the five collection sources', function () {
         'Pillars',
         'Participation Pathways',
         'Job Opportunities',
+        'Secretariat',
     ]);
 });
 
@@ -56,7 +57,9 @@ it('points each source at a real endpoint', function () {
         ->and(CollectionComponentSource::PARTICIPATION_PATHWAYS->getEndpoint())
         ->toBe('/api/participation-pathways')
         ->and(CollectionComponentSource::JOB_OPPORTUNITIES->getEndpoint())
-        ->toBe('/api/job-opportunities');
+        ->toBe('/api/job-opportunities')
+        ->and(CollectionComponentSource::SECRETARIAT->getEndpoint())
+        ->toBe('/api/secretariats');
 });
 
 it('returns the collection block through the page api', function () {

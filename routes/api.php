@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\ParticipationPathwayController;
 use App\Http\Controllers\Api\PillarController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\SecretariatController;
 use App\Http\Controllers\Api\SettingController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,8 @@ Route::get('participation-pathway/{slug}', [ParticipationPathwayController::clas
 /* Job Opportunities */
 Route::get('job-opportunities', [JobOpportunityController::class, 'index']);
 Route::get('job-opportunity/{slug}', [JobOpportunityController::class, 'show']);
+/* Secretariat */
+Route::get('secretariats', [SecretariatController::class, 'index']);
 /* Settings */
 Route::get('settings', [SettingController::class, 'index']);
 /* Menus */

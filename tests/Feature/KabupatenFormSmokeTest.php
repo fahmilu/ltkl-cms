@@ -182,7 +182,7 @@ it('saves the landscape and membership fields', function () {
             'area_km2' => 8556.75,
             'city' => 'Siak',
             'province' => 'Riau',
-            'is_founding_member' => true,
+            'dashboard_url' => 'https://dashboard.kabupatenlestari.org/siak',
             'joined_year' => 2017,
         ])
         ->call('create')
@@ -196,8 +196,27 @@ it('saves the landscape and membership fields', function () {
         ->and((float) $kabupaten->area_km2)->toBe(8556.75)
         ->and($kabupaten->city)->toBe('Siak')
         ->and($kabupaten->province)->toBe('Riau')
-        ->and($kabupaten->is_founding_member)->toBeTrue()
+        ->and($kabupaten->dashboard_url)->toBe('https://dashboard.kabupatenlestari.org/siak')
         ->and($kabupaten->joined_year)->toBe(2017);
+});
+
+it('no longer offers founding member on the form, but a saved value survives', function () {
+    $kabupaten = Kabupaten::create([
+        'title' => 'Siak Regency',
+        'title_id' => 'Kabupaten Siak',
+        'slug' => 'siak-regency',
+        'slug_id' => 'kabupaten-siak',
+        'is_founding_member' => true,
+    ]);
+
+    Livewire::test(EditKabupaten::class, ['record' => $kabupaten->getRouteKey()])
+        ->assertFormFieldDoesNotExist('is_founding_member')
+        ->fillForm(['dashboard_url' => 'https://dashboard.kabupatenlestari.org/siak'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect($kabupaten->refresh()->is_founding_member)->toBeTrue()
+        ->and($kabupaten->dashboard_url)->toBe('https://dashboard.kabupatenlestari.org/siak');
 });
 
 it('saves coordinates picked on the map', function () {

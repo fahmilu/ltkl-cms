@@ -6,7 +6,9 @@ use App\Enums\BlockBackgroundColor;
 use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
+use App\Enums\InfoListLayout;
 use App\Models\Kabupaten;
+use App\Models\Post;
 use App\Support\ComponentAnchors;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -51,6 +53,10 @@ class PageResource extends JsonResource
             $data['components_id'][$key]['data']['anchor'] = $anchor;
         }
 
+        // Posts referenced by Proof of Concept items, looked up once for both
+        // languages rather than once per item.
+        $proofOfConceptPosts = $this->proofOfConceptPosts($data);
+
         foreach ($data['components'] as $key => $component) {
             // Images type
             // Every optional key is read defensively: blocks saved before a field
@@ -64,19 +70,30 @@ class PageResource extends JsonResource
             }
             else if ($component['type'] == 'paragraph') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+            } else if ($component['type'] == 'embed_iframe') {
+                $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'collection') {
                 $data['components'][$key]['data'] = $this->collectionBlock($component['data'] ?? []);
             } else if ($component['type'] == 'banner_statistic') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+            } else if ($component['type'] == 'statistic_with_title') {
+                $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'latest_news') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-            } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision'], true)) {
+            } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision', 'kompas_kabupaten_lestari', 'info_list'], true)) {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                // The Vision and The Problems illustrate their items.
+                // The Vision and The Problems illustrate their items. Kompas
+                // Kabupaten Lestari shares The Vision's shape, plus a label.
+                // Info List shares The Values' shape, plus a layout choice.
                 $data['components'][$key]['data']['items'] = $this->listItems(
                     $component['data']['items'] ?? [],
-                    withImage: in_array($component['type'], ['the_vision', 'the_problems'], true),
+                    withImage: in_array($component['type'], ['the_vision', 'the_problems', 'kompas_kabupaten_lestari'], true),
+                    withLabel: $component['type'] === 'kompas_kabupaten_lestari',
                 );
+                if ($component['type'] === 'info_list') {
+                    $data['components'][$key]['data']['layout'] = InfoListLayout::tryFrom((string) ($component['data']['layout'] ?? ''))?->value
+                        ?? InfoListLayout::ACCORDION->value;
+                }
             } else if ($component['type'] == 'journey') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
                 $data['components'][$key]['data']['items'] = $this->journeySteps($component['data']['items'] ?? []);
@@ -86,6 +103,14 @@ class PageResource extends JsonResource
                 $data['components'][$key]['data'] = $this->textImage($component['data'] ?? [], 'en');
             } else if ($component['type'] == 'bergabung_form') {
                 $data['components'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
+            } else if ($component['type'] == 'proof_of_concept') {
+                $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components'][$key]['data']['items'] = $this->listItems(
+                    $component['data']['items'] ?? [],
+                    withImage: true,
+                    withPost: true,
+                    posts: $proofOfConceptPosts,
+                );
             }
         }
         foreach ($data['components_id'] as $key => $component) {
@@ -98,19 +123,30 @@ class PageResource extends JsonResource
                 $data['components_id'][$key]['data']['image'] = $imageItem;
             } else if ($component['type'] == 'paragraph') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+            } else if ($component['type'] == 'embed_iframe') {
+                $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'collection') {
                 $data['components_id'][$key]['data'] = $this->collectionBlock($component['data'] ?? []);
             } else if ($component['type'] == 'banner_statistic') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+            } else if ($component['type'] == 'statistic_with_title') {
+                $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'latest_news') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-            } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision'], true)) {
+            } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision', 'kompas_kabupaten_lestari', 'info_list'], true)) {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                // The Vision and The Problems illustrate their items.
+                // The Vision and The Problems illustrate their items. Kompas
+                // Kabupaten Lestari shares The Vision's shape, plus a label.
+                // Info List shares The Values' shape, plus a layout choice.
                 $data['components_id'][$key]['data']['items'] = $this->listItems(
                     $component['data']['items'] ?? [],
-                    withImage: in_array($component['type'], ['the_vision', 'the_problems'], true),
+                    withImage: in_array($component['type'], ['the_vision', 'the_problems', 'kompas_kabupaten_lestari'], true),
+                    withLabel: $component['type'] === 'kompas_kabupaten_lestari',
                 );
+                if ($component['type'] === 'info_list') {
+                    $data['components_id'][$key]['data']['layout'] = InfoListLayout::tryFrom((string) ($component['data']['layout'] ?? ''))?->value
+                        ?? InfoListLayout::ACCORDION->value;
+                }
             } else if ($component['type'] == 'journey') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
                 $data['components_id'][$key]['data']['items'] = $this->journeySteps($component['data']['items'] ?? []);
@@ -120,6 +156,14 @@ class PageResource extends JsonResource
                 $data['components_id'][$key]['data'] = $this->textImage($component['data'] ?? [], 'id');
             } else if ($component['type'] == 'bergabung_form') {
                 $data['components_id'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
+            } else if ($component['type'] == 'proof_of_concept') {
+                $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components_id'][$key]['data']['items'] = $this->listItems(
+                    $component['data']['items'] ?? [],
+                    withImage: true,
+                    withPost: true,
+                    posts: $proofOfConceptPosts,
+                );
             }
         }
         return $data;
@@ -253,25 +297,33 @@ class PageResource extends JsonResource
     }
 
     /**
-     * Normalise the items of The Values, The Problems and The Vision, so every
-     * row serialises on the same keys. The image is part of The Vision and The Problems.
+     * Normalise the items of The Values, The Problems, The Vision, Kompas
+     * Kabupaten Lestari and Proof of Concept, so every row serialises on the
+     * same keys. The image is part of every one of them but The Values; the
+     * label is only part of Kompas Kabupaten Lestari; the post pointer is only
+     * part of Proof of Concept.
      *
      * @param  array<int, array<string, mixed>>  $items
+     * @param  \Illuminate\Support\Collection<int, Post>|null  $posts  Required when $withPost is true.
      * @return array<int, array<string, mixed>>
      */
-    private function listItems($items, bool $withImage = false): array
+    private function listItems($items, bool $withImage = false, bool $withLabel = false, bool $withPost = false, $posts = null): array
     {
         if (!is_array($items)) {
             return [];
         }
 
-        return array_values(array_map(function ($item) use ($withImage): array {
+        return array_values(array_map(function ($item) use ($withImage, $withLabel, $withPost, $posts): array {
             $item = is_array($item) ? $item : [];
 
-            $row = [
-                'title' => $this->convertHeadings($item['title'] ?? null),
-                'description' => $this->convertHeadings($item['description'] ?? null),
-            ];
+            $row = [];
+
+            if ($withLabel) {
+                $row['label'] = $item['label'] ?? null;
+            }
+
+            $row['title'] = $this->convertHeadings($item['title'] ?? null);
+            $row['description'] = $this->convertHeadings($item['description'] ?? null);
 
             if ($withImage) {
                 $row['image'] = !empty($item['image'])
@@ -279,8 +331,72 @@ class PageResource extends JsonResource
                     : null;
             }
 
+            if ($withPost) {
+                $postId = $item['post_id'] ?? null;
+                $post = ($posts && is_numeric($postId)) ? $posts->get((int) $postId) : null;
+                $row['post'] = $post ? $this->proofOfConceptPost($post) : null;
+            }
+
             return $row;
         }, $items));
+    }
+
+    /**
+     * Posts referenced by Proof of Concept items across both languages, looked
+     * up once rather than once per item. Only published posts are resolved, so
+     * unpublishing one drops its item's link without anyone editing the page.
+     *
+     * @param  array<string, mixed>  $data
+     * @return \Illuminate\Support\Collection<int, Post>
+     */
+    private function proofOfConceptPosts(array $data)
+    {
+        $ids = [];
+
+        foreach ([$data['components'] ?? [], $data['components_id'] ?? []] as $components) {
+            foreach ((is_array($components) ? $components : []) as $component) {
+                if (($component['type'] ?? null) !== 'proof_of_concept') {
+                    continue;
+                }
+
+                foreach ($component['data']['items'] ?? [] as $item) {
+                    $postId = is_array($item) ? ($item['post_id'] ?? null) : null;
+
+                    if (is_numeric($postId)) {
+                        $ids[] = (int) $postId;
+                    }
+                }
+            }
+        }
+
+        $ids = array_unique($ids);
+
+        if ($ids === []) {
+            return collect();
+        }
+
+        return Post::where('is_active', true)->whereIn('id', $ids)->get()->keyBy('id');
+    }
+
+    /**
+     * A slim post reference for a Proof of Concept item. The full post lives at
+     * /api/post/{slug}.
+     *
+     * @return array<string, mixed>
+     */
+    private function proofOfConceptPost(Post $post): array
+    {
+        return [
+            'id' => $post->id,
+            'title' => $post->title,
+            'title_id' => $post->title_id,
+            'slug' => $post->slug,
+            'slug_id' => $post->slug_id,
+            'lead' => $post->lead,
+            'lead_id' => $post->lead_id,
+            'image' => $post->image ? Storage::disk('public')->url($post->image) : null,
+            'published_at' => $post->published_at,
+        ];
     }
 
     /**

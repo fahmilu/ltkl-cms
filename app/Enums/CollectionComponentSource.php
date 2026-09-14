@@ -16,6 +16,7 @@ enum CollectionComponentSource: string implements HasLabel
     case PILLARS = 'pillars';
     case PARTICIPATION_PATHWAYS = 'participation_pathways';
     case JOB_OPPORTUNITIES = 'job_opportunities';
+    case SECRETARIAT = 'secretariat';
 
     public function getLabel(): string
     {
@@ -25,6 +26,7 @@ enum CollectionComponentSource: string implements HasLabel
             self::PILLARS => 'Pillars',
             self::PARTICIPATION_PATHWAYS => 'Participation Pathways',
             self::JOB_OPPORTUNITIES => 'Job Opportunities',
+            self::SECRETARIAT => 'Secretariat',
         };
     }
 
@@ -39,6 +41,7 @@ enum CollectionComponentSource: string implements HasLabel
             self::PILLARS => '/api/pillars',
             self::PARTICIPATION_PATHWAYS => '/api/participation-pathways',
             self::JOB_OPPORTUNITIES => '/api/job-opportunities',
+            self::SECRETARIAT => '/api/secretariats',
         };
     }
 }

@@ -6,9 +6,11 @@ use App\Enums\BlockBackgroundColor;
 use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
+use App\Enums\InfoListLayout;
 use App\Filament\Helpers\FormHelper;
 use App\Models\Kabupaten;
 use App\Models\Page;
+use App\Models\Post;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -450,6 +452,36 @@ class PageForm
                             ])->columns(2)
                             ->columnSpanFull(),
 
+                        /* Embed iFrame Block
+                        * Label
+                        * Title
+                        * Description
+                        * iFrame URL
+                        */
+                        Builder\Block::make('embed_iframe')
+                            ->label('Embed iFrame')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                TextInput::make('iframe_url')
+                                    ->label('iFrame URL')
+                                    ->placeholder('Input iframe url...')
+                                    ->url()
+                                    ->required()
+                                    ->suffixIcon(Heroicon::GlobeAlt)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(2)
+                            ->columnSpanFull(),
+
                         /* Post Index Block
                         * Should be showing the news list
                         */
@@ -632,6 +664,57 @@ class PageForm
                             ])->columns(2)
                             ->columnSpanFull(),
 
+                        /* Statistic With Title Block
+                        * Same as Statistic, plus Label, Title and Description
+                        * on the block itself rather than on each item.
+                        * Label
+                        * Title
+                        * Description
+                        * Items (Repeater, unlimited) - Title, Value, Unit
+                        * Button Text, Button URL
+                        */
+                        Builder\Block::make('statistic_with_title')
+                            ->label('Statistic With Title')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                Repeater::make('items')
+                                    ->label('Items')
+                                    ->schema([
+                                        TextInput::make('title')
+                                            ->label('Title')
+                                            ->placeholder('Input title...')
+                                            ->columnSpanFull(),
+                                        TextInput::make('value')
+                                            ->label('Value')
+                                            ->placeholder('Input value...')
+                                            ->columnSpan(1),
+                                        TextInput::make('unit')
+                                            ->label('Unit')
+                                            ->placeholder('ha, km², %...')
+                                            ->columnSpan(1),
+                                    ])->columns(2)
+                                    ->columnSpanFull(),
+                                TextInput::make('button_text')
+                                    ->label('Button Text')
+                                    ->placeholder('Input button text...')
+                                    ->columnSpan(1),
+                                TextInput::make('button_url')
+                                    ->label('Button URL')
+                                    ->placeholder('Input button url...')
+                                    ->suffixIcon(Heroicon::GlobeAlt)
+                                    ->columnSpan(1),
+                            ])->columns(2)
+                            ->columnSpanFull(),
+
                         /* The Values, The Problems and The Vision Blocks
                         * Label
                         * Title
@@ -641,6 +724,30 @@ class PageForm
                         self::getListBlock('the_values', 'The Values'),
                         self::getListBlock('the_problems', 'The Problems', withItemImage: true),
                         self::getListBlock('the_vision', 'The Vision', withItemImage: true),
+
+                        /* Kompas Kabupaten Lestari Block
+                        * Same shape as The Vision, each item carries an
+                        * additional label alongside its title and description.
+                        */
+                        self::getListBlock('kompas_kabupaten_lestari', 'Kompas Kabupaten Lestari', withItemImage: true, withItemLabel: true),
+
+                        /* Proof of Concept Block
+                        * Same shape as The Vision, each item also links to an
+                        * optional post — the frontend points its button there.
+                        */
+                        self::getListBlock('proof_of_concept', 'Proof of Concept', withItemImage: true, withItemPost: true),
+
+                        /* Info List Block
+                        * Generic title/description item list, laid out on the
+                        * frontend as an accordion or as cards. Reusable for
+                        * FAQs, Fact & Figures, and similar needs.
+                        * Label
+                        * Title
+                        * Description
+                        * Layout (Accordion, Card)
+                        * Items (Repeater, unlimited) - Title, Description
+                        */
+                        self::getListBlock('info_list', 'Info List', withLayout: true),
 
                         /* Journey Block
                         * Label
@@ -713,7 +820,7 @@ class PageForm
      * A titled section over a list of items: The Values, The Problems and The
      * Vision are the same block, and only The Vision illustrates its items.
      */
-    private static function getListBlock(string $name, string $label, bool $withItemImage = false): Builder\Block
+    private static function getListBlock(string $name, string $label, bool $withItemImage = false, bool $withItemLabel = false, bool $withItemPost = false, bool $withLayout = false): Builder\Block
     {
         return Builder\Block::make($name)
             ->label($label)
@@ -728,6 +835,17 @@ class PageForm
                     ->placeholder('Input title...')
                     ->columnSpan(1),
                 FormHelper::makeRichEditor('description', 'Description'),
+                ...($withLayout ? [
+                    Select::make('layout')
+                        ->label('Layout')
+                        ->helperText('How the items are displayed on the frontend.')
+                        ->options(InfoListLayout::class)
+                        ->default(InfoListLayout::ACCORDION->value)
+                        ->selectablePlaceholder(false)
+                        ->native(false)
+                        ->required()
+                        ->columnSpanFull(),
+                ] : []),
                 Repeater::make('items')
                     ->label('Items')
                     ->itemLabel(fn(array $state): ?string => isset($state['title']) ? strip_tags($state['title']) : null)
@@ -736,6 +854,12 @@ class PageForm
                     ->collapsed()
                     ->cloneable()
                     ->schema([
+                        ...($withItemLabel ? [
+                            TextInput::make('label')
+                                ->label('Label')
+                                ->placeholder('Input label...')
+                                ->columnSpanFull(),
+                        ] : []),
                         FormHelper::makeRichEditor('title', 'Title'),
                         FormHelper::makeRichEditor('description', 'Description'),
                         ...($withItemImage ? [
@@ -753,10 +877,37 @@ class PageForm
                                 ->nullable()
                                 ->columnSpanFull(),
                         ] : []),
+                        ...($withItemPost ? [
+                            Select::make('post_id')
+                                ->label('Related Post')
+                                ->helperText('Optional. The frontend links this item\'s button to the post.')
+                                ->options(fn(): array => self::postOptions())
+                                ->searchable()
+                                ->preload()
+                                ->native(false)
+                                ->nullable()
+                                ->columnSpanFull(),
+                        ] : []),
                     ])->columns(1)
                     ->columnSpanFull(),
             ])->columns(2)
             ->columnSpanFull();
+    }
+
+    /**
+     * Published posts, for a repeater item's optional link to a post.
+     *
+     * @return array<int, string>
+     */
+    private static function postOptions(): array
+    {
+        return Post::where('is_active', true)
+            ->orderByDesc('published_at')
+            ->get()
+            ->mapWithKeys(fn(Post $post): array => [
+                $post->id => ($post->title ?: $post->title_id) ?? '',
+            ])
+            ->all();
     }
 
     /**

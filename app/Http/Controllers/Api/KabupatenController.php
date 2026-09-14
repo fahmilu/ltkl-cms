@@ -33,7 +33,8 @@ use App\Models\Kabupaten;
  *     @OA\Property(property="province", type="string", nullable=true, description="Provinsi", example="Riau"),
  *     @OA\Property(property="latitude", type="number", format="float", nullable=true, example=0.8118),
  *     @OA\Property(property="longitude", type="number", format="float", nullable=true, example=101.8),
- *     @OA\Property(property="is_founding_member", type="boolean", description="Anggota Pendiri"),
+ *     @OA\Property(property="is_founding_member", type="boolean", description="Anggota Pendiri. Kept on the record; no longer edited from the admin form."),
+ *     @OA\Property(property="dashboard_url", type="string", nullable=true, description="Link to the kabupaten's public dashboard"),
  *     @OA\Property(property="joined_year", type="integer", nullable=true, example=2017),
  *     @OA\Property(property="sorted_at", type="integer", nullable=true),
  *     @OA\Property(
@@ -93,6 +94,7 @@ use App\Models\Kabupaten;
  *     @OA\Property(property="city", type="string", nullable=true),
  *     @OA\Property(property="province", type="string", nullable=true),
  *     @OA\Property(property="is_founding_member", type="boolean"),
+ *     @OA\Property(property="dashboard_url", type="string", nullable=true, description="Link to the kabupaten's public dashboard"),
  *     @OA\Property(property="latitude", type="number", format="float", example=0.8118),
  *     @OA\Property(property="longitude", type="number", format="float", example=101.8)
  * )

@@ -96,14 +96,12 @@ class KabupatenForm
                                 ->nullable()
                                 ->columnSpanFull(),
 
-                            Toggle::make('is_founding_member')
-                                ->label('Founding Member')
-                                ->helperText('Founding member. Shows the "Anggota Pendiri" badge.')
-                                ->onColor('primary')
-                                ->offColor(null)
-                                ->onIcon(Heroicon::Check)
-                                ->offIcon(Heroicon::XMark)
-                                ->default(false)
+                            TextInput::make('dashboard_url')
+                                ->label('Dashboard URL')
+                                ->placeholder('Input dashboard url...')
+                                ->url()
+                                ->suffixIcon(Heroicon::GlobeAlt)
+                                ->nullable()
                                 ->columnSpanFull(),
 
                             TextInput::make('joined_year')

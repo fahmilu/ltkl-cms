@@ -27,6 +27,7 @@ class SecretariatsTable
             ->columns([
                 ImageColumn::make('image')
                     ->label('Image')
+                    ->disk('public')
                     ->circular(),
                 TextColumn::make('name')
                     ->label('Name')

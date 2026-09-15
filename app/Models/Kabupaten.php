@@ -57,6 +57,8 @@ class Kabupaten extends Model
         'role_id',
         'content',
         'content_id',
+        'potential',
+        'potential_id',
         'forest_cover_ha',
         'protected_area_ha',
         'social_forestry_tora_ha',

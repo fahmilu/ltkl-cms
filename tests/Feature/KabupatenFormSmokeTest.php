@@ -92,6 +92,25 @@ it('saves the role separately for each language', function () {
         ->and($kabupaten->role_id)->toBe('Anggota pendiri');
 });
 
+it('saves the potential separately for each language', function () {
+    Livewire::test(CreateKabupaten::class)
+        ->fillForm([
+            'title' => 'Siak Regency',
+            'title_id' => 'Kabupaten Siak',
+            'slug' => 'siak-regency',
+            'slug_id' => 'kabupaten-siak',
+            'potential' => 'Peatland restoration at scale.',
+            'potential_id' => 'Pemulihan gambut skala besar.',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $kabupaten = Kabupaten::firstWhere('slug', 'siak-regency');
+
+    expect($kabupaten->potential)->toBe('Peatland restoration at scale.')
+        ->and($kabupaten->potential_id)->toBe('Pemulihan gambut skala besar.');
+});
+
 it('accepts a kabupaten with no role at all', function () {
     Livewire::test(CreateKabupaten::class)
         ->fillForm([

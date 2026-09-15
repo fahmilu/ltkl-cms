@@ -19,6 +19,8 @@ function makeKabupaten(array $overrides = []): Kabupaten
         'role_id' => 'Anggota pendiri',
         'content' => 'The first regency to sign the commitment.',
         'content_id' => 'Kabupaten pertama yang menandatangani komitmen lestari.',
+        'potential' => 'Peatland restoration at scale.',
+        'potential_id' => 'Pemulihan gambut skala besar.',
         'forest_cover_ha' => 312000,
         'protected_area_ha' => 57000,
         'social_forestry_tora_ha' => 21000.5,
@@ -164,6 +166,15 @@ it('returns the role in both languages', function () {
 
     expect($data['role'])->toBe('Founding member')
         ->and($data['role_id'])->toBe('Anggota pendiri');
+});
+
+it('returns the potential in both languages', function () {
+    makeKabupaten();
+
+    $data = $this->getJson('/api/kabupaten/kabupaten-siak')->assertOk()->json('data');
+
+    expect($data['potential'])->toBe('Peatland restoration at scale.')
+        ->and($data['potential_id'])->toBe('Pemulihan gambut skala besar.');
 });
 
 it('returns a null role when it is unset', function () {

@@ -178,6 +178,13 @@ class KabupatenForm
                     ->nullable()
                     ->columnSpanFull(),
 
+                Textarea::make('potential' . $suffix)
+                    ->label('Potensi')
+                    ->placeholder('Input potensi...')
+                    ->rows(4)
+                    ->nullable()
+                    ->columnSpanFull(),
+
                 self::getCommodities($suffix),
                 self::getStory($suffix),
                 self::getAchievements($suffix),

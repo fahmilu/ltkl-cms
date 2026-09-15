@@ -23,6 +23,8 @@ use App\Models\Kabupaten;
  *     @OA\Property(property="role_id", type="string", nullable=true, description="Indonesian role", example="Anggota pendiri"),
  *     @OA\Property(property="content", type="string", nullable=true),
  *     @OA\Property(property="content_id", type="string", nullable=true),
+ *     @OA\Property(property="potential", type="string", nullable=true, description="Potensi, shown above the commodity cards"),
+ *     @OA\Property(property="potential_id", type="string", nullable=true),
  *     @OA\Property(property="forest_cover_ha", type="number", nullable=true, description="Tutupan Hutan, in hectares", example=312000),
  *     @OA\Property(property="protected_area_ha", type="number", nullable=true, description="Kawasan Lindung, in hectares", example=57000),
  *     @OA\Property(property="social_forestry_tora_ha", type="number", nullable=true, description="Perhutanan Sosial & TORA, in hectares", example=21000),

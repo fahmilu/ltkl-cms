@@ -30,6 +30,8 @@ class PostsTable
             ->columns([
                 TextColumn::make('title_id')
                     ->label('Title')
+                    ->wrap()
+                    ->extraAttributes(['style' => 'max-width: 28rem'])
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('type')

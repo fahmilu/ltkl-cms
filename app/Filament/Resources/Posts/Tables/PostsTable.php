@@ -41,7 +41,7 @@ class PostsTable
                 ToggleColumn::make('is_featured')->label('Featured')->onColor('primary')->offColor(null)->onIcon(Heroicon::Check),
                 IconColumn::make('is_active')->label('Active')->boolean(),
                 IconColumn::make('is_external_url')->label('External Link')->trueIcon(Heroicon::OutlinedCheckCircle)->falseIcon(false)
-                    ->toggleable(isToggledHiddenByDefault: false),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('published_at')
                     ->dateTime()
                     ->sortable()
@@ -65,11 +65,11 @@ class PostsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                EditAction::make()->color('gray'),
-                DeleteAction::make(),
-                ForceDeleteAction::make(),
+                EditAction::make()->label('')->color('gray'),
+                DeleteAction::make()->label(''),
+                ForceDeleteAction::make()->label(''),
                 RestoreAction::make()->color('gray'),
-                ReplicateAction::make()->label('Copy')->color('success')
+                ReplicateAction::make()->label('')->color('success')
                     ->modalWidth(Width::ExtraLarge)
                     ->modalHeading('Are you sure to copy & paste this data?')
                     ->modalButton('Paste')

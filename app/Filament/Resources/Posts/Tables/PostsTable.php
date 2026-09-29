@@ -43,19 +43,19 @@ class PostsTable
                 IconColumn::make('is_external_url')->label('External Link')->trueIcon(Heroicon::OutlinedCheckCircle)->falseIcon(false)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('published_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
                 TextColumn::make('deleted_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
-                    ->dateTime()
+                    ->date()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])

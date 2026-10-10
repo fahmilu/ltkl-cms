@@ -8,7 +8,6 @@ use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
 use App\Enums\InfoListLayout;
 use App\Models\Kabupaten;
-use App\Models\Post;
 use App\Support\ComponentAnchors;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -53,10 +52,6 @@ class PageResource extends JsonResource
             $data['components_id'][$key]['data']['anchor'] = $anchor;
         }
 
-        // Posts referenced by Proof of Concept items, looked up once for both
-        // languages rather than once per item.
-        $proofOfConceptPosts = $this->proofOfConceptPosts($data);
-
         foreach ($data['components'] as $key => $component) {
             // Images type
             // Every optional key is read defensively: blocks saved before a field
@@ -97,20 +92,17 @@ class PageResource extends JsonResource
             } else if ($component['type'] == 'journey') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
                 $data['components'][$key]['data']['items'] = $this->journeySteps($component['data']['items'] ?? []);
+            } else if ($component['type'] == 'impact_of_change') {
+                $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components'][$key]['data']['items'] = $this->impactOfChangeItems($component['data']['items'] ?? []);
             } else if ($component['type'] == 'lead_text') {
                 $data['components'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
                 $data['components'][$key]['data'] = $this->textImage($component['data'] ?? [], 'en');
             } else if ($component['type'] == 'bergabung_form') {
                 $data['components'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
-            } else if ($component['type'] == 'proof_of_concept') {
-                $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                $data['components'][$key]['data']['items'] = $this->listItems(
-                    $component['data']['items'] ?? [],
-                    withImage: true,
-                    withPost: true,
-                    posts: $proofOfConceptPosts,
-                );
+            } else if ($component['type'] == 'annual_reports') {
+                $data['components'][$key]['data'] = $this->annualReports($component['data'] ?? []);
             }
         }
         foreach ($data['components_id'] as $key => $component) {
@@ -150,20 +142,17 @@ class PageResource extends JsonResource
             } else if ($component['type'] == 'journey') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
                 $data['components_id'][$key]['data']['items'] = $this->journeySteps($component['data']['items'] ?? []);
+            } else if ($component['type'] == 'impact_of_change') {
+                $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components_id'][$key]['data']['items'] = $this->impactOfChangeItems($component['data']['items'] ?? []);
             } else if ($component['type'] == 'lead_text') {
                 $data['components_id'][$key]['data']['lead'] = $this->convertHeadings($component['data']['lead'] ?? null);
             } else if ($component['type'] == 'text_image') {
                 $data['components_id'][$key]['data'] = $this->textImage($component['data'] ?? [], 'id');
             } else if ($component['type'] == 'bergabung_form') {
                 $data['components_id'][$key]['data'] = $this->bergabungForm($component['data'] ?? []);
-            } else if ($component['type'] == 'proof_of_concept') {
-                $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
-                $data['components_id'][$key]['data']['items'] = $this->listItems(
-                    $component['data']['items'] ?? [],
-                    withImage: true,
-                    withPost: true,
-                    posts: $proofOfConceptPosts,
-                );
+            } else if ($component['type'] == 'annual_reports') {
+                $data['components_id'][$key]['data'] = $this->annualReports($component['data'] ?? []);
             }
         }
         return $data;
@@ -297,23 +286,21 @@ class PageResource extends JsonResource
     }
 
     /**
-     * Normalise the items of The Values, The Problems, The Vision, Kompas
-     * Kabupaten Lestari and Proof of Concept, so every row serialises on the
-     * same keys. The image is part of every one of them but The Values; the
-     * label is only part of Kompas Kabupaten Lestari; the post pointer is only
-     * part of Proof of Concept.
+     * Normalise the items of The Values, The Problems, The Vision and Kompas
+     * Kabupaten Lestari, so every row serialises on the same keys. The image is
+     * part of every one of them but The Values; the label is only part of Kompas
+     * Kabupaten Lestari.
      *
      * @param  array<int, array<string, mixed>>  $items
-     * @param  \Illuminate\Support\Collection<int, Post>|null  $posts  Required when $withPost is true.
      * @return array<int, array<string, mixed>>
      */
-    private function listItems($items, bool $withImage = false, bool $withLabel = false, bool $withPost = false, $posts = null): array
+    private function listItems($items, bool $withImage = false, bool $withLabel = false): array
     {
         if (!is_array($items)) {
             return [];
         }
 
-        return array_values(array_map(function ($item) use ($withImage, $withLabel, $withPost, $posts): array {
+        return array_values(array_map(function ($item) use ($withImage, $withLabel): array {
             $item = is_array($item) ? $item : [];
 
             $row = [];
@@ -331,72 +318,44 @@ class PageResource extends JsonResource
                     : null;
             }
 
-            if ($withPost) {
-                $postId = $item['post_id'] ?? null;
-                $post = ($posts && is_numeric($postId)) ? $posts->get((int) $postId) : null;
-                $row['post'] = $post ? $this->proofOfConceptPost($post) : null;
-            }
-
             return $row;
         }, $items));
     }
 
     /**
-     * Posts referenced by Proof of Concept items across both languages, looked
-     * up once rather than once per item. Only published posts are resolved, so
-     * unpublishing one drops its item's link without anyone editing the page.
+     * Normalise an Annual Reports block, so every block serialises on the same
+     * keys. The cover image and every report file are published as full URLs;
+     * an upload left empty reads as null rather than dropping the key.
      *
      * @param  array<string, mixed>  $data
-     * @return \Illuminate\Support\Collection<int, Post>
+     * @return array<string, mixed>
      */
-    private function proofOfConceptPosts(array $data)
+    private function annualReports($data): array
     {
-        $ids = [];
+        $data = is_array($data) ? $data : [];
+        $items = is_array($data['items'] ?? null) ? $data['items'] : [];
 
-        foreach ([$data['components'] ?? [], $data['components_id'] ?? []] as $components) {
-            foreach ((is_array($components) ? $components : []) as $component) {
-                if (($component['type'] ?? null) !== 'proof_of_concept') {
-                    continue;
-                }
+        $data['description'] = $this->convertHeadings($data['description'] ?? null);
+        $data['cover_image'] = $this->publicUrl($data['cover_image'] ?? null);
+        $data['file'] = $this->publicUrl($data['file'] ?? null);
+        $data['items'] = array_values(array_map(function ($item): array {
+            $item = is_array($item) ? $item : [];
 
-                foreach ($component['data']['items'] ?? [] as $item) {
-                    $postId = is_array($item) ? ($item['post_id'] ?? null) : null;
+            return [
+                'title' => $item['title'] ?? null,
+                'file' => $this->publicUrl($item['file'] ?? null),
+            ];
+        }, $items));
 
-                    if (is_numeric($postId)) {
-                        $ids[] = (int) $postId;
-                    }
-                }
-            }
-        }
-
-        $ids = array_unique($ids);
-
-        if ($ids === []) {
-            return collect();
-        }
-
-        return Post::where('is_active', true)->whereIn('id', $ids)->get()->keyBy('id');
+        return $data;
     }
 
     /**
-     * A slim post reference for a Proof of Concept item. The full post lives at
-     * /api/post/{slug}.
-     *
-     * @return array<string, mixed>
+     * The public URL of a stored upload, or null when nothing was uploaded.
      */
-    private function proofOfConceptPost(Post $post): array
+    private function publicUrl($path): ?string
     {
-        return [
-            'id' => $post->id,
-            'title' => $post->title,
-            'title_id' => $post->title_id,
-            'slug' => $post->slug,
-            'slug_id' => $post->slug_id,
-            'lead' => $post->lead,
-            'lead_id' => $post->lead_id,
-            'image' => $post->image ? Storage::disk('public')->url($post->image) : null,
-            'published_at' => $post->published_at,
-        ];
+        return is_string($path) && $path !== '' ? Storage::disk('public')->url($path) : null;
     }
 
     /**
@@ -427,6 +386,34 @@ class PageResource extends JsonResource
         }
 
         return $steps;
+    }
+
+    /**
+     * Normalise the items of an Impact of Change block, so every row serialises
+     * on the same keys. The image is published as a full URL, and the link is
+     * optional, so a row without one carries null rather than dropping the key.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function impactOfChangeItems($items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        return array_values(array_map(function ($item): array {
+            $item = is_array($item) ? $item : [];
+
+            return [
+                'title' => $item['title'] ?? null,
+                'description' => $this->convertHeadings($item['description'] ?? null),
+                'image' => !empty($item['image'])
+                    ? Storage::disk('public')->url($item['image'])
+                    : null,
+                'link' => ($item['link'] ?? null) ?: null,
+            ];
+        }, $items));
     }
 
     private function convertHeadings(?string $content): ?string

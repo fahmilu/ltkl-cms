@@ -10,7 +10,6 @@ use App\Enums\InfoListLayout;
 use App\Filament\Helpers\FormHelper;
 use App\Models\Kabupaten;
 use App\Models\Page;
-use App\Models\Post;
 use Filament\Actions\Action;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -731,12 +730,6 @@ class PageForm
                         */
                         self::getListBlock('kompas_kabupaten_lestari', 'Kompas Kabupaten Lestari', withItemImage: true, withItemLabel: true),
 
-                        /* Proof of Concept Block
-                        * Same shape as The Vision, each item also links to an
-                        * optional post — the frontend points its button there.
-                        */
-                        self::getListBlock('proof_of_concept', 'Proof of Concept', withItemImage: true, withItemPost: true),
-
                         /* Info List Block
                         * Generic title/description item list, laid out on the
                         * frontend as an accordion or as cards. Reusable for
@@ -806,6 +799,120 @@ class PageForm
                             ])->columns(2)
                             ->columnSpanFull(),
 
+                        /* Impact of Change Block
+                        * Label
+                        * Title
+                        * Description
+                        * Items (Repeater, unlimited) - Title, Description, Image, Link (optional)
+                        */
+                        Builder\Block::make('impact_of_change')
+                            ->label('Impact of Change')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                Repeater::make('items')
+                                    ->label('Items')
+                                    ->addActionLabel('Add item')
+                                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                                    ->reorderableWithDragAndDrop()
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->cloneable()
+                                    ->schema([
+                                        TextInput::make('title')
+                                            ->label('Title')
+                                            ->placeholder('Input title...')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        FormHelper::makeRichEditor('description', 'Description'),
+                                        FileUpload::make('image')
+                                            ->label('Image')
+                                            ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
+                                            ->image()
+                                            ->openable()
+                                            ->removeUploadedFileButtonPosition('bottom')
+                                            ->directory('pages')
+                                            ->disk('public')
+                                            ->visibility('public')
+                                            ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                            ->nullable()
+                                            ->columnSpanFull(),
+                                        TextInput::make('link')
+                                            ->label('Link')
+                                            ->helperText('Optional.')
+                                            ->placeholder('Input link...')
+                                            ->suffixIcon(Heroicon::GlobeAlt)
+                                            ->nullable()
+                                            ->columnSpanFull(),
+                                    ])->columns(1)
+                                    ->columnSpanFull(),
+                            ])->columns(2)
+                            ->columnSpanFull(),
+
+                        /* Annual Reports Block
+                        * Label
+                        * Title
+                        * Description
+                        * Cover Image
+                        * File - the latest report
+                        * Items (Repeater, unlimited) - Title, File: the archive of earlier reports
+                        */
+                        Builder\Block::make('annual_reports')
+                            ->label('Annual Reports')
+                            ->schema([
+                                ...FormHelper::submenuFields(),
+                                TextInput::make('label')
+                                    ->label('Label')
+                                    ->placeholder('Input label...')
+                                    ->columnSpan(1),
+                                TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('Input title...')
+                                    ->columnSpan(1),
+                                FormHelper::makeRichEditor('description', 'Description'),
+                                FileUpload::make('cover_image')
+                                    ->label('Cover Image')
+                                    ->helperText('Ideal max size are ' . config('filehelper.single-image.max-size') . ' and dimensions are ' . config('filehelper.single-image.dimensions') . ' pixels.')
+                                    ->image()
+                                    ->openable()
+                                    ->removeUploadedFileButtonPosition('bottom')
+                                    ->directory('pages')
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->acceptedFileTypes(config('filesystems.image_mimes'))
+                                    ->nullable()
+                                    ->columnSpan(1),
+                                self::reportFileUpload('file', 'File')
+                                    ->columnSpan(1),
+                                Repeater::make('items')
+                                    ->label('Archive')
+                                    ->addActionLabel('Add report')
+                                    ->itemLabel(fn(array $state): ?string => $state['title'] ?? null)
+                                    ->reorderableWithDragAndDrop()
+                                    ->collapsible()
+                                    ->collapsed()
+                                    ->cloneable()
+                                    ->schema([
+                                        TextInput::make('title')
+                                            ->label('Title')
+                                            ->placeholder('Laporan Tahunan 2024')
+                                            ->required()
+                                            ->columnSpanFull(),
+                                        self::reportFileUpload('file', 'File')
+                                            ->columnSpanFull(),
+                                    ])->columns(1)
+                                    ->columnSpanFull(),
+                            ])->columns(2)
+                            ->columnSpanFull(),
+
                     ])
                     ->blockPickerColumns(2)
                     ->collapsible()
@@ -820,7 +927,7 @@ class PageForm
      * A titled section over a list of items: The Values, The Problems and The
      * Vision are the same block, and only The Vision illustrates its items.
      */
-    private static function getListBlock(string $name, string $label, bool $withItemImage = false, bool $withItemLabel = false, bool $withItemPost = false, bool $withLayout = false): Builder\Block
+    private static function getListBlock(string $name, string $label, bool $withItemImage = false, bool $withItemLabel = false, bool $withLayout = false): Builder\Block
     {
         return Builder\Block::make($name)
             ->label($label)
@@ -877,17 +984,6 @@ class PageForm
                                 ->nullable()
                                 ->columnSpanFull(),
                         ] : []),
-                        ...($withItemPost ? [
-                            Select::make('post_id')
-                                ->label('Related Post')
-                                ->helperText('Optional. The frontend links this item\'s button to the post.')
-                                ->options(fn(): array => self::postOptions())
-                                ->searchable()
-                                ->preload()
-                                ->native(false)
-                                ->nullable()
-                                ->columnSpanFull(),
-                        ] : []),
                     ])->columns(1)
                     ->columnSpanFull(),
             ])->columns(2)
@@ -895,19 +991,22 @@ class PageForm
     }
 
     /**
-     * Published posts, for a repeater item's optional link to a post.
-     *
-     * @return array<int, string>
+     * A downloadable report document for the Annual Reports block, shared by
+     * the latest report and every archived one.
      */
-    private static function postOptions(): array
+    private static function reportFileUpload(string $name, string $label): FileUpload
     {
-        return Post::where('is_active', true)
-            ->orderByDesc('published_at')
-            ->get()
-            ->mapWithKeys(fn(Post $post): array => [
-                $post->id => ($post->title ?: $post->title_id) ?? '',
-            ])
-            ->all();
+        return FileUpload::make($name)
+            ->label($label)
+            ->helperText('File, ideally max size are 50 MB.')
+            ->openable()
+            ->downloadable()
+            ->maxSize(51200) // kilobytes
+            ->disk('public')
+            ->directory('pages')
+            ->preserveFilenames()
+            ->acceptedFileTypes(config('filesystems.file_mimes'))
+            ->nullable();
     }
 
     /**

@@ -145,6 +145,24 @@ it('serves a vacancy on either language slug', function () {
     }
 });
 
+it('serves about and qualifications in both languages', function () {
+    makeJob([
+        'about' => '<p>LTKL is a district association.</p>',
+        'about_id' => '<p>LTKL adalah asosiasi kabupaten.</p>',
+        'qualifications' => '<ul><li>Five years of experience.</li></ul>',
+        'qualifications_id' => '<ul><li>Pengalaman lima tahun.</li></ul>',
+    ]);
+
+    $data = $this->getJson('/api/job-opportunity/consultant-sustainable-investment-development')
+        ->assertOk()
+        ->json('data');
+
+    expect($data['about'])->toBe('<p>LTKL is a district association.</p>')
+        ->and($data['about_id'])->toBe('<p>LTKL adalah asosiasi kabupaten.</p>')
+        ->and($data['qualifications'])->toContain('Five years of experience.')
+        ->and($data['qualifications_id'])->toContain('Pengalaman lima tahun.');
+});
+
 it('still serves a closed vacancy', function () {
     makeJob(['status' => JobStatus::CLOSED]);
 

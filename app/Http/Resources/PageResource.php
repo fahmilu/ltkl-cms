@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Enums\BlockBackgroundColor;
+use App\Enums\ButtonType;
 use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
@@ -73,6 +74,7 @@ class PageResource extends JsonResource
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'statistic_with_title') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components'][$key]['data']['items'] = $this->statisticItems($component['data']['items'] ?? []);
             } else if ($component['type'] == 'latest_news') {
                 $data['components'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision', 'kompas_kabupaten_lestari', 'info_list'], true)) {
@@ -123,6 +125,7 @@ class PageResource extends JsonResource
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if ($component['type'] == 'statistic_with_title') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
+                $data['components_id'][$key]['data']['items'] = $this->statisticItems($component['data']['items'] ?? []);
             } else if ($component['type'] == 'latest_news') {
                 $data['components_id'][$key]['data']['description'] = $this->convertHeadings($component['data']['description'] ?? null);
             } else if (in_array($component['type'], ['the_values', 'the_problems', 'the_vision', 'kompas_kabupaten_lestari', 'info_list'], true)) {
@@ -225,8 +228,9 @@ class PageResource extends JsonResource
     /**
      * Normalise a Text Image block, so every block serialises on the same keys.
      *
-     * Blocks saved before the block styling existed carry none of those keys:
-     * they read as a plain, uncoloured section with the image on the right.
+     * Blocks saved before the block styling and the button type existed carry
+     * none of those keys: they read as a plain, uncoloured section with the
+     * image on the right and a URL button.
      * The colour is only published when the block is actually filled.
      *
      * The subtitle is a kabupaten reference rather than free text. It publishes
@@ -248,6 +252,18 @@ class PageResource extends JsonResource
             ? BlockBackgroundColor::fromState($data['background_color'] ?? null)
             : null;
         $data['image_position'] = ImagePosition::fromState($data['image_position'] ?? null)->value;
+
+        // The button links either to a URL or to a file uploaded with the block.
+        // button_url is always the link to follow, whichever it is, so the
+        // frontend can render the button the same way for both.
+        $buttonType = ButtonType::fromState($data['button_type'] ?? null);
+        $buttonFile = $buttonType === ButtonType::FILE ? $this->publicUrl($data['button_file'] ?? null) : null;
+
+        $data['button_type'] = $buttonType->value;
+        $data['button_file'] = $buttonFile;
+        $data['button_url'] = $buttonType === ButtonType::FILE
+            ? $buttonFile
+            : (($data['button_url'] ?? null) ?: null);
 
         $kabupaten = $this->resolveKabupaten($data['kabupaten_id'] ?? null);
 
@@ -356,6 +372,32 @@ class PageResource extends JsonResource
     private function publicUrl($path): ?string
     {
         return is_string($path) && $path !== '' ? Storage::disk('public')->url($path) : null;
+    }
+
+    /**
+     * Normalise the items of a Statistic With Title block, so every row
+     * serialises on the same keys. The description is optional; rows saved
+     * before it existed carry null.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @return array<int, array<string, mixed>>
+     */
+    private function statisticItems($items): array
+    {
+        if (!is_array($items)) {
+            return [];
+        }
+
+        return array_values(array_map(function ($item): array {
+            $item = is_array($item) ? $item : [];
+
+            return [
+                'title' => $item['title'] ?? null,
+                'value' => $item['value'] ?? null,
+                'unit' => $item['unit'] ?? null,
+                'description' => $this->convertHeadings($item['description'] ?? null),
+            ];
+        }, $items));
     }
 
     /**

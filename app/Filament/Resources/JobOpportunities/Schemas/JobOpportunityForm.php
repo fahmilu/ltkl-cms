@@ -152,7 +152,11 @@ class JobOpportunityForm
                     ->nullable()
                     ->columnSpanFull(),
 
+                FormHelper::makeRichEditor('about' . $suffix, 'About'),
+
                 FormHelper::makeRichEditor('description' . $suffix, 'Description'),
+
+                FormHelper::makeRichEditor('qualifications' . $suffix, 'Qualifications'),
 
                 FormHelper::makeRichEditor('how_to_apply' . $suffix, 'How to Apply'),
             ])

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Pages\Schemas;
 
 use App\Enums\BlockBackgroundColor;
+use App\Enums\ButtonType;
 use App\Enums\CollectionComponentSource;
 use App\Enums\CollectionDisplay;
 use App\Enums\ImagePosition;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -515,7 +517,7 @@ class PageForm
                         * Title
                         * Subtitle
                         * Description
-                        * Button Text, Button URL
+                        * Button Text, Button Type, Button URL or Button File
                         */
                         Builder\Block::make('text_image')
                             ->label('Text Image')
@@ -591,11 +593,35 @@ class PageForm
                                     ->label('Button Text')
                                     ->placeholder('Input button text...')
                                     ->columnSpan(1),
+                                // The button either links somewhere or downloads a file
+                                // uploaded with the block, such as a report.
+                                ToggleButtons::make('button_type')
+                                    ->label('Button Type')
+                                    ->options(ButtonType::class)
+                                    ->default(ButtonType::URL->value)
+                                    // Blocks saved before the option existed hydrate as URL.
+                                    ->formatStateUsing(fn($state): string => ButtonType::fromState($state)->value)
+                                    ->inline()
+                                    ->live()
+                                    ->columnSpan(1),
                                 TextInput::make('button_url')
                                     ->label('Button URL')
                                     ->placeholder('Input button url...')
                                     ->suffixIcon(Heroicon::GlobeAlt)
-                                    ->columnSpan(1),
+                                    ->visible(fn(Get $get): bool => ButtonType::fromState($get('button_type')) === ButtonType::URL)
+                                    ->columnSpanFull(),
+                                FileUpload::make('button_file')
+                                    ->label('Button File')
+                                    ->helperText('The file the button downloads, such as a report. Ideally max size are 50 MB.')
+                                    ->openable()->downloadable()
+                                    ->maxSize(51200)
+                                    ->directory('pages')
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->preserveFilenames()
+                                    ->acceptedFileTypes(config('filesystems.file_mimes'))
+                                    ->visible(fn(Get $get): bool => ButtonType::fromState($get('button_type')) === ButtonType::FILE)
+                                    ->columnSpanFull(),
                             ])
                             ->columns(2)
                             ->columnSpanFull(),
@@ -669,7 +695,7 @@ class PageForm
                         * Label
                         * Title
                         * Description
-                        * Items (Repeater, unlimited) - Title, Value, Unit
+                        * Items (Repeater, unlimited) - Title, Value, Unit, Description
                         * Button Text, Button URL
                         */
                         Builder\Block::make('statistic_with_title')
@@ -700,6 +726,7 @@ class PageForm
                                             ->label('Unit')
                                             ->placeholder('ha, km², %...')
                                             ->columnSpan(1),
+                                        FormHelper::makeRichEditor('description', 'Description'),
                                     ])->columns(2)
                                     ->columnSpanFull(),
                                 TextInput::make('button_text')

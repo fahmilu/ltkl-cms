@@ -143,3 +143,37 @@ it('drops a background colour that is no longer in the palette', function () {
 
     expect($data['components'][0]['data']['background_color'])->toBeNull();
 });
+
+it('publishes a text image button that downloads an uploaded file', function () {
+    makePageWithBlocks([
+        [
+            'type' => 'text_image',
+            'data' => [
+                'title' => 'Annual report',
+                'button_text' => 'Download report',
+                'button_type' => 'file',
+                'button_url' => 'https://example.org/stale',
+                'button_file' => 'pages/annual-report-2025.pdf',
+            ],
+        ],
+    ]);
+
+    $data = $this->getJson('/api/page/homepage')->assertOk()->json('data.components.0.data');
+    $fileUrl = \Illuminate\Support\Facades\Storage::disk('public')->url('pages/annual-report-2025.pdf');
+
+    expect($data['button_type'])->toBe('file')
+        ->and($data['button_file'])->toBe($fileUrl)
+        ->and($data['button_url'])->toBe($fileUrl);
+});
+
+it('reads a text image button saved before the button type existed as a url', function () {
+    makePageWithBlocks([
+        ['type' => 'text_image', 'data' => ['title' => 'On the ground', 'button_url' => 'https://kabupatenlestari.org']],
+    ]);
+
+    $data = $this->getJson('/api/page/homepage')->assertOk()->json('data.components.0.data');
+
+    expect($data['button_type'])->toBe('url')
+        ->and($data['button_file'])->toBeNull()
+        ->and($data['button_url'])->toBe('https://kabupatenlestari.org');
+});

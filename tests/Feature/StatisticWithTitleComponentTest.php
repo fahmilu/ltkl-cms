@@ -63,8 +63,8 @@ it('returns the label, title and description from the root, not the items', func
         // Headings step down one level, as everywhere else in the builder.
         ->and($data['description'])->toBe('<h3>Terus bertumbuh</h3><p>Diperbarui setiap tahun.</p>')
         ->and($data['items'])->toBe([
-            ['title' => 'Luas kawasan', 'value' => '1.2', 'unit' => 'juta ha'],
-            ['title' => 'Kabupaten anggota', 'value' => '12', 'unit' => 'kabupaten'],
+            ['title' => 'Luas kawasan', 'value' => '1.2', 'unit' => 'juta ha', 'description' => null],
+            ['title' => 'Kabupaten anggota', 'value' => '12', 'unit' => 'kabupaten', 'description' => null],
         ])
         ->and($data['button_text'])->toBe('Lihat data lengkap')
         ->and($data['button_url'])->toBe('https://kabupatenlestari.org/data');
@@ -85,4 +85,18 @@ it('anchors the block when it is flagged as a submenu entry', function () {
     $block = $this->getJson('/api/page/homepage')->assertOk()->json('data.components.0');
 
     expect($block['data']['anchor'])->toBe('capaian-kabupaten-lestari');
+});
+
+it('publishes an optional rich text description on each item', function () {
+    makePageWithStatisticWithTitle([
+        'items' => [
+            ['title' => 'Luas kawasan', 'value' => '1.2', 'unit' => 'juta ha', 'description' => '<h2>Sumber</h2><p>BPS 2025.</p>'],
+            ['title' => 'Kabupaten anggota', 'value' => '12', 'unit' => 'kabupaten', 'description' => ''],
+        ],
+    ]);
+
+    $items = $this->getJson('/api/page/homepage')->assertOk()->json('data.components.0.data.items');
+
+    expect($items[0]['description'])->toBe('<h3>Sumber</h3><p>BPS 2025.</p>')
+        ->and($items[1]['description'])->toBeEmpty();
 });

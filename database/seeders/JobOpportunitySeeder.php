@@ -38,7 +38,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::OPEN,
-                'employment_type' => EmploymentType::CONSULTANT,
+                'employment_type' => [EmploymentType::CONSULTANT],
                 'title' => 'Consultant - Knowledge Management',
                 'title_id' => 'Konsultan - Knowledge Management',
                 'slug' => 'consultant-knowledge-management',
@@ -55,7 +55,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::OPEN,
-                'employment_type' => EmploymentType::FULL_TIME,
+                'employment_type' => [EmploymentType::FULL_TIME],
                 'title' => 'Business & Portfolio Development Coordinator',
                 'title_id' => 'Koordinator Pengembangan Bisnis & Portofolio',
                 'slug' => 'business-portfolio-development-coordinator',
@@ -72,7 +72,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::OPEN,
-                'employment_type' => EmploymentType::FULL_TIME,
+                'employment_type' => [EmploymentType::FULL_TIME],
                 'title' => 'Strategic Communication Coordinator',
                 'title_id' => 'Koordinator Komunikasi Strategis',
                 'slug' => 'strategic-communication-coordinator',
@@ -89,7 +89,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::OPEN,
-                'employment_type' => EmploymentType::CONTRACT,
+                'employment_type' => [EmploymentType::CONTRACT],
                 'title' => 'Project Officer - Festival Lestari Kapuas Hulu',
                 'title_id' => 'Project Officer - Festival Lestari Kapuas Hulu',
                 'slug' => 'project-officer-festival-lestari-kapuas-hulu',
@@ -106,7 +106,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::FULL_TIME,
+                'employment_type' => [EmploymentType::FULL_TIME],
                 'title' => 'Government Affair & Policy Advocacy Coordinator',
                 'title_id' => 'Koordinator Hubungan Pemerintah & Advokasi Kebijakan',
                 'slug' => 'government-affair-policy-advocacy-coordinator',
@@ -123,7 +123,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::CONSULTANT,
+                'employment_type' => [EmploymentType::CONSULTANT],
                 'title' => 'Consultant - Sustainable Investment Development',
                 'title_id' => 'Konsultan - Sustainable Investment Development',
                 'slug' => 'consultant-sustainable-investment-development',
@@ -140,7 +140,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::CONSULTANT,
+                'employment_type' => [EmploymentType::CONSULTANT],
                 'title' => 'Consultant - Program Specialist of Sustainable Business and Investment',
                 'title_id' => 'Konsultan - Program Specialist of Sustainable Business and Investment',
                 'slug' => 'consultant-program-specialist-sustainable-business-and-investment',
@@ -157,7 +157,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::CONSULTANT,
+                'employment_type' => [EmploymentType::CONSULTANT],
                 'title' => 'Consultant - Sustainable Enterprise Readiness',
                 'title_id' => 'Konsultan - Sustainable Enterprise Readiness',
                 'slug' => 'consultant-sustainable-enterprise-readiness',
@@ -174,7 +174,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::FULL_TIME,
+                'employment_type' => [EmploymentType::FULL_TIME],
                 'title' => 'Awards Management Coordinator',
                 'title_id' => 'Koordinator Manajemen Penghargaan',
                 'slug' => 'awards-management-coordinator',
@@ -191,7 +191,7 @@ class JobOpportunitySeeder extends Seeder
             [
                 'is_active' => true,
                 'status' => JobStatus::CLOSED,
-                'employment_type' => EmploymentType::CONTRACT,
+                'employment_type' => [EmploymentType::CONTRACT],
                 'title' => 'Project Manager for Organizational Development',
                 'title_id' => 'Manajer Proyek Pengembangan Organisasi',
                 'slug' => 'project-manager-for-organizational-development',

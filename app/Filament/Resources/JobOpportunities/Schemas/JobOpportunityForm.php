@@ -68,6 +68,7 @@ class JobOpportunityForm
                             Select::make('employment_type')
                                 ->label('Employment Type')
                                 ->options(EmploymentType::class)
+                                ->multiple()
                                 ->native(false)
                                 ->nullable()
                                 ->columnSpanFull(),

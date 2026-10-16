@@ -18,7 +18,7 @@ function makeJob(array $overrides = []): JobOpportunity
     return JobOpportunity::create(array_merge([
         'is_active' => true,
         'status' => JobStatus::OPEN,
-        'employment_type' => EmploymentType::CONSULTANT,
+        'employment_type' => [EmploymentType::CONSULTANT],
         'title' => 'Consultant - Sustainable Investment Development',
         'title_id' => 'Konsultan - Sustainable Investment Development',
         'slug' => 'consultant-sustainable-investment-development',
@@ -56,7 +56,7 @@ it('saves a vacancy in both languages', function () {
             'slug' => 'consultant-sustainable-investment-development',
             'location_id' => 'Jakarta, Indonesia',
             'location' => 'Jakarta, Indonesia',
-            'employment_type' => EmploymentType::CONSULTANT->value,
+            'employment_type' => [EmploymentType::CONSULTANT->value, EmploymentType::CONTRACT->value],
             'status' => JobStatus::OPEN->value,
             'contact_email' => 'recruitment@kabupatenlestari.org',
             'posted_at' => '2026-02-05',
@@ -69,7 +69,7 @@ it('saves a vacancy in both languages', function () {
 
     expect($job->title_id)->toBe('Konsultan - Sustainable Investment Development')
         ->and($job->status)->toBe(JobStatus::OPEN)
-        ->and($job->employment_type)->toBe(EmploymentType::CONSULTANT)
+        ->and($job->employment_type->all())->toBe([EmploymentType::CONSULTANT, EmploymentType::CONTRACT])
         ->and($job->deadline_at->toDateString())->toBe('2026-03-16');
 });
 
@@ -103,7 +103,7 @@ it('lists published vacancies with their status', function () {
         ->and($data[0]['slug'])->toBe('consultant-sustainable-investment-development')
         ->and($data[0]['status'])->toBe('open')
         ->and($data[0]['is_open'])->toBeTrue()
-        ->and($data[0]['employment_type'])->toBe('consultant')
+        ->and($data[0]['employment_type'])->toBe(['consultant'])
         ->and($data[0]['deadline_at'])->toBe('2026-03-16')
         ->and($data[1]['status'])->toBe('closed')
         ->and($data[1]['is_open'])->toBeFalse();
@@ -194,4 +194,30 @@ it('publishes the attachment as a url', function () {
 it('is offered as a collection page block source', function () {
     expect(CollectionComponentSource::JOB_OPPORTUNITIES->getLabel())->toBe('Job Opportunities')
         ->and(CollectionComponentSource::JOB_OPPORTUNITIES->getEndpoint())->toBe('/api/job-opportunities');
+});
+
+it('filters the admin table on any one of the employment types', function () {
+    $this->actingAs(User::factory()->create());
+
+    $both = makeJob(['employment_type' => [EmploymentType::CONSULTANT, EmploymentType::CONTRACT]]);
+    $fullTime = makeJob([
+        'employment_type' => [EmploymentType::FULL_TIME],
+        'slug' => 'full-time-role',
+        'slug_id' => 'peran-penuh-waktu',
+    ]);
+
+    Livewire::test(\App\Filament\Resources\JobOpportunities\Pages\ListJobOpportunities::class)
+        ->filterTable('employment_type', EmploymentType::CONTRACT->value)
+        ->assertCanSeeTableRecords([$both])
+        ->assertCanNotSeeTableRecords([$fullTime]);
+});
+
+it('serves a vacancy with no employment type as an empty list', function () {
+    makeJob(['employment_type' => null]);
+
+    $data = $this->getJson('/api/job-opportunity/consultant-sustainable-investment-development')
+        ->assertOk()
+        ->json('data');
+
+    expect($data['employment_type'])->toBe([]);
 });

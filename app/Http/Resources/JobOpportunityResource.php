@@ -19,6 +19,8 @@ class JobOpportunityResource extends JsonResource
         $data = parent::toArray($request);
 
         $data['status'] = JobStatus::fromState($this->status)->value;
+        // Always a list, empty when no type was picked.
+        $data['employment_type'] = $this->employment_type?->map->value->values()->all() ?? [];
         // Taking applications is the status alone: a passed deadline does not
         // close a vacancy, so the frontend can show both facts as they are.
         $data['is_open'] = $data['status'] === JobStatus::OPEN->value;

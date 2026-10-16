@@ -18,6 +18,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class JobOpportunitiesTable
 {
@@ -63,7 +64,11 @@ class JobOpportunitiesTable
                     ->options(JobStatus::class),
                 SelectFilter::make('employment_type')
                     ->label('Employment Type')
-                    ->options(EmploymentType::class),
+                    ->options(EmploymentType::class)
+                    // The type is a list, so match vacancies that include it.
+                    ->query(fn(Builder $query, array $data): Builder => filled($data['value'] ?? null)
+                        ? $query->whereJsonContains('employment_type', $data['value'])
+                        : $query),
                 TernaryFilter::make('is_active')->label('Published'),
                 TrashedFilter::make(),
             ])

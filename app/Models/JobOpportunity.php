@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EmploymentType;
 use App\Enums\JobStatus;
+use Illuminate\Database\Eloquent\Casts\AsEnumCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,7 +24,8 @@ class JobOpportunity extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'status' => JobStatus::class,
-        'employment_type' => EmploymentType::class,
+        // A vacancy can be offered under more than one engagement.
+        'employment_type' => AsEnumCollection::class . ':' . EmploymentType::class,
         'posted_at' => 'date',
         'deadline_at' => 'date',
         'deleted_at' => 'datetime',

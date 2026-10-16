@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
  *     @OA\Property(property="is_active", type="boolean"),
  *     @OA\Property(property="status", type="string", enum={"open", "closed"}),
  *     @OA\Property(property="is_open", type="boolean"),
- *     @OA\Property(property="employment_type", type="string", nullable=true, enum={"full_time", "part_time", "contract", "consultant", "internship", "volunteer"}),
+ *     @OA\Property(property="employment_type", type="array", @OA\Items(type="string", enum={"full_time", "part_time", "contract", "consultant", "internship", "volunteer"})),
  *     @OA\Property(property="title", type="string"),
  *     @OA\Property(property="title_id", type="string", nullable=true),
  *     @OA\Property(property="slug", type="string"),

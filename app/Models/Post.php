@@ -20,6 +20,7 @@ class Post extends Model
     protected $casts = [
         'type' => PostType::class,
         'type_data' => 'array',
+        'is_part_of_articles' => 'boolean',
         'components' => 'json',
         'components_id' => 'json',
         'published_at' => 'datetime',
@@ -36,6 +37,7 @@ class Post extends Model
     protected $fillable = [
         'is_active',
         'type',
+        'is_part_of_articles',
         'type_data',
         'image',
         'title',

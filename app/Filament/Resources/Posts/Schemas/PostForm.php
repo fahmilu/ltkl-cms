@@ -79,6 +79,11 @@ class PostForm
                                 ->required()
                                 ->columnSpanFull(),
 
+                            Toggle::make('is_part_of_articles')->label('Part of Articles')->onColor('primary')->offColor(null)->onIcon(Heroicon::Check)
+                                ->default(false)
+                                ->hidden(fn(Get $get) => self::isType($get, PostType::ARTICLE))
+                                ->columnSpanFull(),
+
                             FileUpload::make('image')
                                 ->label('Image')
                                 // ->placeholder('Input image...')

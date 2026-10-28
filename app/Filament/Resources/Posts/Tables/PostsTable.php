@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Posts\Tables;
 
+use App\Enums\PostType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -38,6 +39,9 @@ class PostsTable
                     ->label('Type')
                     ->badge()
                     ->sortable(),
+                ToggleColumn::make('is_part_of_articles')->label('Part of Articles')->onColor('primary')->offColor(null)->onIcon(Heroicon::Check)
+                    ->disabled(fn(Model $record) => $record->type === PostType::ARTICLE)
+                    ->toggleable(),
                 ToggleColumn::make('is_featured')->label('Featured')->onColor('primary')->offColor(null)->onIcon(Heroicon::Check),
                 IconColumn::make('is_active')->label('Active')->boolean(),
                 IconColumn::make('is_external_url')->label('External Link')->trueIcon(Heroicon::OutlinedCheckCircle)->falseIcon(false)

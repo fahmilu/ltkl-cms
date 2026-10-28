@@ -13,6 +13,7 @@ use App\Models\Post;
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="is_active", type="boolean"),
  *     @OA\Property(property="type", type="string", enum={"article", "video", "event", "library", "media_coverage"}),
+ *     @OA\Property(property="is_part_of_articles", type="boolean", description="Also list this post among the articles"),
  *     @OA\Property(property="title", type="string"),
  *     @OA\Property(property="title_id", type="string", nullable=true),
  *     @OA\Property(property="slug", type="string"),
@@ -134,6 +135,15 @@ class PostController extends Controller
      *               type="boolean"
      *           )
      *       ),
+     *       @OA\Parameter(
+     *           name="part_of_articles",
+     *           in="query",
+     *           required=false,
+     *           description="Filter posts flagged as Part of Articles",
+     *           @OA\Schema(
+     *               type="boolean"
+     *           )
+     *       ),
      *        @OA\Parameter(
      *            name="search",
      *            in="query",
@@ -147,7 +157,7 @@ class PostController extends Controller
      *            name="sort",
      *            in="query",
      *            required=false,
-     *            description="Sort column (id, title, published_at, created_at, updated_at, is_featured, is_active)",
+     *            description="Sort column (id, title, published_at, created_at, updated_at, is_featured, is_part_of_articles, is_active)",
      *            @OA\Schema(
      *                type="string",
      *                default="published_at"

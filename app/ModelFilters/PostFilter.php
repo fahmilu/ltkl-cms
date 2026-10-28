@@ -18,6 +18,7 @@ class PostFilter extends ModelFilter
         'created_at',
         'updated_at',
         'is_featured',
+        'is_part_of_articles',
         'is_active',
     ];
 
@@ -48,6 +49,20 @@ class PostFilter extends ModelFilter
             return $this->where('is_featured', false);
         }
         
+        return $this;
+    }
+
+    /**
+     * Filter by "Part of Articles" flag
+     */
+    public function partOfArticles($value)
+    {
+        if ($value === true || $value === 'true' || $value === '1' || $value === 1) {
+            return $this->where('is_part_of_articles', true);
+        } elseif ($value === false || $value === 'false' || $value === '0' || $value === 0) {
+            return $this->where('is_part_of_articles', false);
+        }
+
         return $this;
     }
 
